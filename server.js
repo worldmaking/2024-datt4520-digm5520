@@ -5,28 +5,33 @@ const assert = require("assert");
 const http = require("http");
 const https = require("https");
 
-const dotenv = require("dotenv").config();
 const express = require('express')
 const ws = require('ws')
 
-console.log(process.env)
+// this is used on the server to load in settings from a .env file:
+const dotenv = require("dotenv").config();
 
+// we need this configuration to enable HTTPS where this is supported
+// (because HTTPS is a requirement for WebXR)
 const IS_HTTP = (!process.env.PORT_HTTP);
 const PORT_HTTP = IS_HTTP ? (process.env.PORT || 3000) : (process.env.PORT_HTTP || 80);
 const PORT_HTTPS = process.env.PORT_HTTPS || 443;
 const PORT = IS_HTTP ? PORT_HTTP : PORT_HTTPS;
+
+// this is where our HTML files etc. live:
 const PUBLIC_PATH = path.join(__dirname, "public");
 
+// create a server
 const app = express()
 // serve all content in the /public folder as static HTML 
 app.use(express.static(PUBLIC_PATH))
-
 // also now your default route should probably send the contents of "index.html":
 app.get('/', function (req, res) {
 	res.sendFile(PUBLIC_PATH);
 });
 
 // allow cross-domain access (CORS)
+// so that we can load assets from other websites
 app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -34,7 +39,7 @@ app.use(function(req, res, next) {
 	return next();
 });
 
-// promote http to https:
+// promote http to https if necessary:
 if (!IS_HTTP) {
 	http.createServer(function(req, res) {
         res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
@@ -57,7 +62,7 @@ server.listen(PORT, function() {
 const wss = new ws.Server({ server });
 wss.binaryType = 'arraybuffer';
 
-let sharedbuffer = new Float32Array(1024 * 4)
+let sharedbuffer = new Float32Array(1024 * 8)
 
 let shared = {
 	clients: []
@@ -109,4 +114,4 @@ function updateAllClients() {
 	});
 }
 
-setInterval(updateAllClients, 25)
+setInterval(updateAllClients, 50)
