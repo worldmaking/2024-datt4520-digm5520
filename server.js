@@ -21,6 +21,9 @@ const server = app.listen(PORT, () => {
 //... and after we've set up our 'app' server:
 // add a websocket server for continuous communication with clients:
 const wss = new ws.Server({ server });
+wss.binaryType = 'arraybuffer';
+
+let sharedbuffer = new Float32Array(1024 * 16)
 
 let shared = {
 	clients: []
@@ -65,10 +68,11 @@ wss.on('connection', function(client, request) {
 
 // to send a message to *everyone*:
 function updateAllClients() {
+	//let msg = JSON.stringify(shared)
+	let msg = sharedbuffer
 	wss.clients.forEach(client => {
-		client.send(JSON.stringify(shared));
+		client.send(msg);
 	});
 }
-
 
 setInterval(updateAllClients, 25)

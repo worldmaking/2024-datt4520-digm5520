@@ -1,14 +1,26 @@
 // import the Three.js module:
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import Stats from "three/addons/libs/stats.module";
+import { XRButton } from "three/addons/webxr/XRButton.js";
+
+
+const overlay = document.getElementById("overlay")
+
+// add a stats view to the page to monitor performance:
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 // create a renderer with better than default quality:
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 // make it fill the page
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.xr.enabled = true;
+//renderer.shadowMap.enabled = true;
 // create and add the <canvas>
 document.body.appendChild(renderer.domElement);
+document.body.appendChild(XRButton.createButton(renderer));
 
 // create a perspective camera
 const camera = new THREE.PerspectiveCamera(
@@ -34,6 +46,8 @@ window.addEventListener("resize", function () {
   if (!renderer.xr.isPresenting)
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+const clock = new THREE.Clock();
 
 const scene = new THREE.Scene();
 
@@ -71,10 +85,18 @@ function updateSceneFromServer(shared) {
 }
 
 function animate() {
-	//orbitControls.update();
+	// monitor our FPS:
+	stats.begin();
+	
+	// get current timing:
+	const dt = clock.getDelta();
+	const t = clock.getElapsedTime();
   
 	// now draw the scene:
 	renderer.render(scene, camera);
+
+	// monitor our FPS:
+	stats.end();
 }
 renderer.setAnimationLoop(animate);
   
@@ -86,6 +108,7 @@ console.log("connecting to", addr)
 
 // this is how to create a client socket in the browser:
 let socket = new WebSocket(addr);
+socket.binaryType = 'arraybuffer';
 
 // let's know when it works:
 socket.onopen = function() { 
@@ -118,9 +141,18 @@ document.addEventListener("pointermove", e => {
 	}))
 });
 
+let last_msg_t = clock.getElapsedTime();
+
 socket.onmessage = function(msg) {
-	
-	if (msg.data.toString().substring(0,1) == "{") {
+
+	if (msg.data instanceof ArrayBuffer) {
+
+		let t = clock.getElapsedTime();
+
+		overlay.innerText += "ws received arraybuffer of " + msg.data.byteLength + " bytes at " + Math.round( 1/(t - last_msg_t) ) + " fps \n"
+		last_msg_t = t
+
+	} else if (msg.data.toString().substring(0,1) == "{") {
     	updateSceneFromServer(JSON.parse(msg.data))
 	} else {
 		console.log("received", msg.data);
