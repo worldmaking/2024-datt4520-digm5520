@@ -112,7 +112,7 @@ function updateAllClients() {
 	//let msg = JSON.stringify(shared)
 	let msg = sharedbuffer
 	wss.clients.forEach(client => {
-		client.send(msg);
+		//client.send(msg);
 	});
 }
 
