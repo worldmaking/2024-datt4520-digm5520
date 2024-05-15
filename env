@@ -1,0 +1,5 @@
+DEBUG=false
+KEY_PATH=/etc/letsencrypt/live/xr.alicelab.world/privkey.pem
+CERT_PATH=/etc/letsencrypt/live/xr.alicelab.world/fullchain.pem
+PORT_HTTP=80
+PORT_HTTPS=443
