@@ -5,8 +5,11 @@ const assert = require("assert");
 const http = require("http");
 const https = require("https");
 
+const dotenv = require("dotenv").config();
 const express = require('express')
 const ws = require('ws')
+
+console.log(process.env)
 
 const IS_HTTP = (!process.env.PORT_HTTP);
 const PORT_HTTP = IS_HTTP ? (process.env.PORT || 3000) : (process.env.PORT_HTTP || 80);
