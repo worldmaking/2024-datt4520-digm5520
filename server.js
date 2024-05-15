@@ -104,7 +104,7 @@ wss.on('connection', function(client, request) {
 		}
 	});
 
-	client.send('hello');
+	client.send('hi');
 });
 
 // to send a message to *everyone*:
