@@ -36,7 +36,7 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.y = 1.5; // average human eye height is about 1.5m above ground
 camera.position.z = 4; // let's stand 2 meters back
 
-//const orbitControls = new OrbitControls(camera, renderer.domElement);
+const orbitControls = new OrbitControls(camera, renderer.domElement);
 
 // update camera & renderer when page resizes:
 window.addEventListener("resize", function () {
@@ -100,7 +100,7 @@ function animate() {
 }
 renderer.setAnimationLoop(animate);
   
-
+/////////////////////////////////////////
 
 // connect to websocket at same location as the web-page host:
 const addr = location.origin.replace(/^http/, 'ws')
