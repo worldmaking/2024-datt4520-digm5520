@@ -80,7 +80,7 @@ wss.on('connection', function(client, request) {
 	client.on('message', function message(data) {
 		if (data.toString().substring(0,1) == "{") {
 			let msg = JSON.parse(data)
-			console.log(msg)
+			//console.log(msg)
 
 			switch (msg.what) {
 				case "pointermove": {
@@ -88,7 +88,7 @@ wss.on('connection', function(client, request) {
 					self.y = msg.y
 				} break;
 				default: {
-					console.log('received: %s', msg);
+					//console.log('received: %s', msg);
 				}
 			}
 
