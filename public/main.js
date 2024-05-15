@@ -153,7 +153,7 @@ socket.onmessage = function(msg) {
 		last_msg_t = t
 
 	} else if (msg.data.toString().substring(0,1) == "{") {
-    	updateSceneFromServer(JSON.parse(msg.data))
+    	//updateSceneFromServer(JSON.parse(msg.data))
 	} else {
 		console.log("received", msg.data);
 	}

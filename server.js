@@ -23,7 +23,7 @@ const server = app.listen(PORT, () => {
 const wss = new ws.Server({ server });
 wss.binaryType = 'arraybuffer';
 
-let sharedbuffer = new Float32Array(1024 * 16)
+let sharedbuffer = new Float32Array(1024 *)
 
 let shared = {
 	clients: []
