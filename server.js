@@ -1,22 +1,53 @@
+const fs = require('fs');
+const path = require("path")
+const url = require('url');
+const assert = require("assert");
+const http = require("http");
+const https = require("https");
 
 const express = require('express')
 const ws = require('ws')
 
-const PORT = 3000
-
+const IS_HTTP = (!process.env.PORT_HTTP);
+const PORT_HTTP = IS_HTTP ? (process.env.PORT || 3000) : (process.env.PORT_HTTP || 80);
+const PORT_HTTPS = process.env.PORT_HTTPS || 443;
+const PORT = IS_HTTP ? PORT_HTTP : PORT_HTTPS;
+const PUBLIC_PATH = path.join(__dirname, "public");
 
 const app = express()
 // serve all content in the /public folder as static HTML 
-app.use(express.static('public'))
+app.use(express.static(PUBLIC_PATH))
 
 // also now your default route should probably send the contents of "index.html":
 app.get('/', function (req, res) {
-	res.sendFile(path.join("public", "index.html"));
+	res.sendFile(PUBLIC_PATH);
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`)
-})
+// allow cross-domain access (CORS)
+app.use(function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Content-Type');
+	return next();
+});
+
+// promote http to https:
+if (!IS_HTTP) {
+	http.createServer(function(req, res) {
+        res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+        res.end();
+    }).listen(PORT_HTTP);
+}
+// create the primary server:
+const server = IS_HTTP ? http.createServer(app) : https.createServer({
+	key: fs.readFileSync(process.env.KEY_PATH),
+	cert: fs.readFileSync(process.env.CERT_PATH)
+}, app);
+
+// start the server:
+server.listen(PORT, function() {
+	console.log("\nNode.js listening on port " + PORT);
+});
 
 //... and after we've set up our 'app' server:
 // add a websocket server for continuous communication with clients:
