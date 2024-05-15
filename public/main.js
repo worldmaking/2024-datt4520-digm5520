@@ -149,7 +149,11 @@ socket.onmessage = function(msg) {
 
 		let t = clock.getElapsedTime();
 
-		overlay.innerText += "ws received arraybuffer of " + msg.data.byteLength + " bytes at " + Math.round( 1/(t - last_msg_t) ) + " fps \n"
+		let fps = Math.round( 1/(t - last_msg_t) )
+
+		let mbps = ((msg.data.byteLength * 8) * fps) / 1024 / 1024
+
+		overlay.innerText += "ws received arraybuffer of " + msg.data.byteLength + " bytes at " + Math.round( 1/(t - last_msg_t) ) + " fps, which is " + Math.round(mbps) + " mbps \n"
 		last_msg_t = t
 
 	} else if (msg.data.toString().substring(0,1) == "{") {
