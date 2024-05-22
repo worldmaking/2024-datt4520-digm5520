@@ -2,4 +2,4 @@
 
 Project space for DATT4520 / DIGM5520 course at York University
 
-Class of 2024
+Class of 2024, Toronto
