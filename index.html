@@ -2,7 +2,8 @@
 <html lang="en">  
 <head>
 <meta charset="utf-8">  
-<title>Project Title</title>  
+<title>Lumen Project Description</title>  
+<link rel="stylesheet" href="style.css">
 <script type="importmap">
 {
 	"imports": {        
@@ -11,54 +12,114 @@
 	}
 }
 </script>
-<style>
-* { 
-	font-family: Arial, Helvetica, sans-serif;
-}	
-
-#overlay {
-	position: absolute;
-	bottom: 0px;
-	left: 0px;
-	z-index: 10;
-	width: 100%;
-
-	white-space: pre;
-	color: white;
-	background-color: rgba(0, 0, 0, 0.5);
-	/*font-size: 1.4rem;*/
-	text-rendering: optimizeLegibility;
-	font-family: monospace;
-}
-
-</style>
 </head>  
 <body>
-	<h1 style="text-align: center;">Project Title</h1>
-	<p>[img]</p>
-	
-	<h2>Project Description</h2>
-	<p>This project comprises a hypothetical world below the “sea”.
-		The world is as dark as the bottom of a deep sea with some ambient lighting just enough to observe the world closest to you. 
-		In this world, there are agents (sea life agents) of varying sizes and or types.
-		Users can enter this world through a VR head-mounted headset or a desktop or mobile device such as a phone or tablet.
-		Multiple users across different platforms can access this world at the same time.
-		Users in this world take up the form of a light-emitting creature.
-		The user’s avatar across platforms including VR is a light source.
-		Users can throw light bulbs from their controller or pointer.
-		Users in VR can walk around, crouch, and jump in the world for navigation
-		Users on other platforms can navigate using “flyControls” and joysticks or WASD.
-		When users launch a glowing ball within the space, the ball drops slowly to the ground.
-		Users can release the control to retract the ball or the ball can retract automatically after a moment.
-		The agents (sealife agents) are constantly seeking out light sources.
-		Agents closer to the user will curiously flock around the user as a light source.
-		When the glowing balls are launched into the space, the agents closest to the ball actively seek out the light source as it falls to the ground.
-		As the ball falls to the ground, it releases a wave that makes the agents closest to it behave erratically hunting each other, and reducing in number. 
-		When there are no lights in the space, the agents reproduce and grow in number until a certain maximum.
-		All interactions and reactions in this world will produce different feedback from vibrations to sound. (reproduction, death, wave, shock, launching and retracting of light balls, ambiance, navigation, etc)
-	</p>
-	<hr/>
-	<a href="paper.html">View paper</a>
-	<a href="https://xr.alicelab.world/">View project</a>
+    <div id="nav">
+        <a class="logo" href="index.html">Lumen</a>
+        <div id="nav-list">
+            <a class="list-item" href="index.html">Overview</a>
+            <a class="list-item" href="paper.html">Paper</a>
+            <a class="list-item" href="https://xr.alicelab.world/">Project</a>
+        </div>
+    </div>
+
+    <!-- IMG SLIDESHOW -->
+    <div class="slideshow-container">
+        <div class="slides fade">
+            <img src="/img/IMG_1275.png" />
+        </div>
+
+        <div class="slides fade">
+            <img src="/img/IMG_1276.png" />
+        </div>
+
+        <div class="slides fade">
+            <img src="/img/IMG_1277.png" />
+        </div>
+
+        <a class="prev" onclick="plusSlides(-1)">❮</a>
+        <a class="next" onclick="plusSlides(1)">❯</a>
+    </div>
+    <br>
+    <!-- pagination -->
+    <div style="text-align:center">
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
+    </div>
+    <!-- slideshow script -->
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("slides");
+            let dots = document.getElementsByClassName("dot");
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            slides[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " active";
+        }
+    </script>
+
+    <!-- If we want a header image with the project title overlayed on top instead of a slideshow of images, use this:
+    <div id="header">
+        <h1 style="text-align: center;">Project Title</h1>
+    </div> 
+    -->
+
+    <div id="main">
+        <h1 style="font-size: 64px; text-align: center;">Lumen</h1>
+        <h2>Project Description</h2>
+        <p><span style="font-style: italic;">Lumen</span> is a hypothetical world below the “sea”.
+            The world is as dark as the bottom of a deep sea with some ambient lighting just enough to observe the world
+            closest to you.
+            In this world, there are agents (sea life agents) of varying sizes and or types.
+            Users can enter this world through a VR head-mounted headset or a desktop or mobile device such as a phone
+            or tablet.
+            Multiple users across different platforms can access this world at the same time.
+            Users in this world take up the form of a light-emitting creature.
+            The user’s avatar across platforms including VR is a light source.
+            Users can throw light bulbs from their controller or pointer.
+            Users in VR can walk around, crouch, and jump in the world for navigation
+            Users on other platforms can navigate using “flyControls” and joysticks or WASD.
+            When users launch a glowing ball within the space, the ball drops slowly to the ground.
+            Users can release the control to retract the ball or the ball can retract automatically after a moment.
+            The agents (sealife agents) are constantly seeking out light sources.
+            Agents closer to the user will curiously flock around the user as a light source.
+            When the glowing balls are launched into the space, the agents closest to the ball actively seek out the
+            light source as it falls to the ground.
+            As the ball falls to the ground, it releases a wave that makes the agents closest to it behave erratically
+            hunting each other, and reducing in number.
+            When there are no lights in the space, the agents reproduce and grow in number until a certain maximum.
+            All interactions and reactions in this world will produce different feedback from vibrations to sound.
+            (reproduction, death, wave, shock, launching and retracting of light balls, ambiance, navigation, etc)
+        </p>
+
+        <h3>Avatars</h3>
+        <p></p>
+
+        <h3>Agents</h3>
+        <p></p>
+
+        <h3>Sound</h3>
+        <p></p>
+
+    </div>
 </body>  
 </html>
