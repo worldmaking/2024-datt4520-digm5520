@@ -67,7 +67,8 @@ wss.binaryType = 'arraybuffer';
 let sharedbuffer = new Float32Array(1024 * 8)
 
 let shared = {
-	clients: []
+	clients: [],
+	agents: []
 }
 
 // handle each new connections from a client:

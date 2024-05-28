@@ -145,19 +145,10 @@ let last_msg_t = clock.getElapsedTime();
 
 socket.onmessage = function(msg) {
 
-	if (msg.data instanceof ArrayBuffer) {
+	if (msg.data.toString().substring(0,1) == "{") {
+		// we received a JSON message:
+		let json = JSON.parse(msg)
 
-		let t = clock.getElapsedTime();
-
-		let fps = Math.round( 1/(t - last_msg_t) )
-
-		let mbps = ((msg.data.byteLength * 8) * fps) / 1024 / 1024
-
-		overlay.innerText = "ws received arraybuffer of " + msg.data.byteLength + " bytes at " + Math.round( 1/(t - last_msg_t) ) + " fps, which is " + Math.round(mbps) + " mbps \n"
-		last_msg_t = t
-
-	} else if (msg.data.toString().substring(0,1) == "{") {
-    	//updateSceneFromServer(JSON.parse(msg.data))
 	} else {
 		console.log("received", msg.data);
 	}
