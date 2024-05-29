@@ -12,11 +12,7 @@
 }
 </script>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0px; }	
 
 #overlay {
 	position: absolute;
@@ -33,34 +29,10 @@
 	font-family: monospace;
 }
 
-input, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-#loginForm{
-	position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
 </style>
 </head>  
 <body>
 <div id="overlay"></div>
-<div id="loginForm">
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button id="loginButton">Login</button>
-</div>
 <script type="module" src="main.js"></script>
 </body>  
 </html>

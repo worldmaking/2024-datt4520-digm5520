@@ -4,9 +4,10 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "three/addons/libs/stats.module";
 import { XRButton } from "three/addons/webxr/XRButton.js";
 
-const overlay = document.getElementById("overlay");
 
-let uuid = "";
+const overlay = document.getElementById("overlay")
+
+let uuid = ""
 
 // add a stats view to the page to monitor performance:
 const stats = new Stats();
@@ -28,7 +29,7 @@ const camera = new THREE.PerspectiveCamera(
   75, // this camera has a 75 degree field of view in the vertical axis
   window.innerWidth / window.innerHeight, // the aspect ratio matches the size of the window
   0.05, // anything less than 5cm from the eye will not be drawn
-  100, // anything more than 100m from the eye will not be drawn
+  100 // anything more than 100m from the eye will not be drawn
 );
 // position the camera
 // the X axis points to the right
@@ -61,199 +62,182 @@ scene.add(light);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
 
-const MAX_NUM_AVATARS = 100;
-let avatar_meshes = [];
-const avatar_geometry = new THREE.BoxGeometry(0.4, 0.4, 0.1);
-for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-  let avatar_material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  let avatar_mesh = new THREE.Mesh(avatar_geometry, avatar_material);
-  scene.add(avatar_mesh);
+const MAX_NUM_AVATARS = 100
+let avatar_meshes = []
+const avatar_geometry = new THREE.BoxGeometry( 0.4, 0.4, 0.1 );
+for (let i=0; i<MAX_NUM_AVATARS; i++) {
+	let avatar_material = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+	let avatar_mesh = new THREE.Mesh( avatar_geometry, avatar_material ); 
+	scene.add( avatar_mesh );
 
-  avatar_meshes[i] = avatar_mesh;
+	avatar_meshes[i] = avatar_mesh
 }
 
 // this is the shared state sent to all clients:
 let shared = {
-  avatars: [],
-  creatures: [],
-};
-
+	avatars: [],
+	creatures: []
+}
+  
 /////////////////////////////////////////
 
 // connect to websocket at same location as the web-page host:
-const addr = location.origin.replace(/^http/, "ws");
-console.log("connecting to", addr);
+const addr = location.origin.replace(/^http/, 'ws')
+console.log("connecting to", addr)
 
 // this is how to create a client socket in the browser:
 let socket = new WebSocket(addr);
-socket.binaryType = "arraybuffer";
+socket.binaryType = 'arraybuffer';
 
 // let's know when it works:
-socket.onopen = function () {
-  // or document.write("websocket connected to "+addr);
-  console.log("websocket connected to " + addr);
-};
-socket.onerror = function (err) {
-  console.error(err);
-};
-socket.onclose = function (e) {
-  console.log("websocket disconnected from " + addr);
-  // a useful trick:
-  // if the server disconnects (happens a lot during development!)
-  // after 2 seconds, reload the page to try to reconnect:
-  setTimeout(() => location.reload(), 2000);
-};
+socket.onopen = function() { 
+	// or document.write("websocket connected to "+addr); 
+	console.log("websocket connected to "+addr); 
+}
+socket.onerror = function(err) { 
+	console.error(err); 
+}
+socket.onclose = function(e) { 
+	console.log("websocket disconnected from "+addr); 
+	// a useful trick:
+	// if the server disconnects (happens a lot during development!)
+	// after 2 seconds, reload the page to try to reconnect:
+	setTimeout(() => location.reload(), 2000)
+}
 
-socket.onmessage = function (msg) {
-  if (msg.data.toString().substring(0, 1) == "{") {
-    // we received a JSON message; parse it:
-    let json = JSON.parse(msg.data);
-    // handle different message types:
-    switch (json.type) {
-      case "login":
-        {
-          if (json.status == "success") {
-            uuid = json.avatar.uuid;
-          }
-        }
-        break;
-      case "avatars":
-        {
-          // iterate over json.avatars to update all our avatars
-          shared.avatars = json.avatars;
-        }
-        break;
-      case "creatures":
-        {
-          // iterate over json.creatures to update all our creatures
-          shared.creatures = json.creatures;
-        }
-        break;
-      default: {
-        console.log("received json", json);
-      }
-    }
-  } else {
-    console.log("received", msg.data);
-  }
-};
+socket.onmessage = function(msg) {
+	if (msg.data.toString().substring(0,1) == "{") {
+		// we received a JSON message; parse it:
+		let json = JSON.parse(msg.data)
+		// handle different message types:
+		switch (json.type) {
+			case "uuid": {
+				// set our local ID:
+				uuid = json.uuid
+			} break;
+			case "avatars": {
+				// iterate over json.avatars to update all our avatars
+				shared.avatars = json.avatars
+			} break;
+			case "creatures": {
+				// iterate over json.creatures to update all our creatures
+				shared.creatures = json.creatures
+			} break;
+			default: {
+				console.log("received json", json)
+			}
+		}
 
-// main.js
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("loginButton").addEventListener("click", function () {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    console.log(
-      "Logging in with username:",
-      username,
-      "and password:",
-      password,
-    );
-  });
-});
-
-function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  console.log("Logging in with username:", username, "and password:", password);
+	} else {
+		console.log("received", msg.data);
+	}
 }
 
 function socket_send_message(msg) {
-  // abort if socket is not available:
-  if (socket.readyState !== WebSocket.OPEN) return;
-  // convert JSON to string:
-  if (typeof msg != "string") msg = JSON.stringify(msg);
+	// abort if socket is not available:
+	if (socket.readyState !== WebSocket.OPEN) return;
+	// convert JSON to string:
+	if (typeof msg != "string") msg = JSON.stringify(msg);
 
-  //console.log(msg);
-  socket.send(msg);
+	//console.log(msg);
+	socket.send(msg)
 }
 
 ////////////////////////////////
 
 let avatarNav = {
-  color: new THREE.Color(),
-  pos: new THREE.Vector3(Math.random() * 4 - 2, 1.5, Math.random() * 4 - 2),
-  dir: new THREE.Quaternion(),
-};
+	color: new THREE.Color(),
+	pos: new THREE.Vector3(
+		Math.random()*4 - 2,
+		1.5,
+		Math.random()*4 - 2
+	),
+	dir: new THREE.Quaternion(),
+}
+
+
 
 function animate() {
-  // monitor our FPS:
-  stats.begin();
+	// monitor our FPS:
+	stats.begin();
+	
+	// get current timing:
+	const dt = clock.getDelta();
+	const t = clock.getElapsedTime();
 
-  // get current timing:
-  const dt = clock.getDelta();
-  const t = clock.getElapsedTime();
 
-  // update our nav:
-  avatarNav.dir.copy(camera.quaternion);
+	// update our nav:
+	avatarNav.dir.copy(camera.quaternion)
 
-  orbitControls.target.copy(avatarNav.pos);
-  orbitControls.update();
+	orbitControls.target.copy(avatarNav.pos);
+	orbitControls.update()
 
-  // update appearance of avatars:
-  {
-    let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS);
-    for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-      let mesh = avatar_meshes[i];
-      let avatar = shared.avatars[i];
 
-      // hide and skip any meshes that we don't need to render:
-      if (i >= count) {
-        mesh.visible = false;
-        continue;
-      }
 
-      mesh.visible = true;
+	// update appearance of avatars:
+	{
+		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
+		for (let i=0; i<MAX_NUM_AVATARS; i++) {
+			let mesh = avatar_meshes[i]
+			let avatar = shared.avatars[i]
 
-      // udpate pose:
-      mesh.position.fromArray(avatar.head.pos);
-      mesh.quaternion.fromArray(avatar.head.dir);
-      mesh.updateMatrix();
+			// hide and skip any meshes that we don't need to render:
+			if (i >= count) {
+				mesh.visible = false;
+				continue;
+			}
+			
+			mesh.visible = true;
+			
+			// udpate pose:
+			mesh.position.fromArray(avatar.head.pos)
+			mesh.quaternion.fromArray(avatar.head.dir)
+			mesh.updateMatrix();
 
-      // update color:
-      mesh.material.color.setHex(avatar.color);
-      mesh.material.needsUpdate = true;
-    }
+			// update color:
+			mesh.material.color.setHex(avatar.color)
+			mesh.material.needsUpdate = true
+		}
+	
+		// let color = new THREE.Color()
+		// for (let i=0; i < count; i++) {
+		// 	// update the instanced Mesh from this avatar:
+		// 	let avatar = shared.avatars[i]
+		// 	//console.log(avatar)
 
-    // let color = new THREE.Color()
-    // for (let i=0; i < count; i++) {
-    // 	// update the instanced Mesh from this avatar:
-    // 	let avatar = shared.avatars[i]
-    // 	//console.log(avatar)
+		// 	position.fromArray(avatar.head.pos)
+		// 	direction.fromArray(avatar.head.dir)
+		// 	mat.compose(position, direction, scale)
+		// 	avatar_mesh.setMatrixAt(i, mat)
 
-    // 	position.fromArray(avatar.head.pos)
-    // 	direction.fromArray(avatar.head.dir)
-    // 	mat.compose(position, direction, scale)
-    // 	avatar_mesh.setMatrixAt(i, mat)
+		// 	color.setHex(avatar.color)
+		// 	avatar_mesh.setColorAt(i, color)
+		// }
+		// avatar_mesh.count = count
+		// avatar_mesh.instanceMatrix.needsUpdate = true;
+		// avatar_mesh.instanceColor.needsUpdate = true;
+	}
+  
+	// now draw the scene:
+	renderer.render(scene, camera);
 
-    // 	color.setHex(avatar.color)
-    // 	avatar_mesh.setColorAt(i, color)
-    // }
-    // avatar_mesh.count = count
-    // avatar_mesh.instanceMatrix.needsUpdate = true;
-    // avatar_mesh.instanceColor.needsUpdate = true;
-  }
+	if (uuid) {
+		socket_send_message({
+			type: "avatar",
+			uuid,
+			head: {
+				pos: avatarNav.pos.toArray(),
+				dir: avatarNav.dir.toArray(),
+			},
+			// hand1: [0, 0, 0],
+			// hand2:  [0, 0, 0],
+			// lightball:  [0, 0, 0],
+			color: avatarNav.color.getHex(),
+			//shape: "sphere"
+		})
+	}
 
-  // now draw the scene:
-  renderer.render(scene, camera);
-
-  if (uuid) {
-    socket_send_message({
-      type: "avatar",
-      uuid,
-      head: {
-        pos: avatarNav.pos.toArray(),
-        dir: avatarNav.dir.toArray(),
-      },
-      // hand1: [0, 0, 0],
-      // hand2:  [0, 0, 0],
-      // lightball:  [0, 0, 0],
-      color: avatarNav.color.getHex(),
-      //shape: "sphere"
-    });
-  }
-
-  // monitor our FPS:
-  stats.end();
+	// monitor our FPS:
+	stats.end();
 }
 renderer.setAnimationLoop(animate);
