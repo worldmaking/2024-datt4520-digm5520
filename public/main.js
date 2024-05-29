@@ -63,16 +63,15 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
 
 const MAX_NUM_AVATARS = 100
-
-// TODO: change this from instanced mesh to an array of meshes
-// because our avatar design isn't suitable for instanced mesh
-const avatar_geometry = new THREE.BoxGeometry( 0.4, 0.4, 0.1 ).translate(0, 0, 0); 
-const avatar_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); 
-const avatar_mesh = new THREE.InstancedMesh( avatar_geometry, avatar_material, MAX_NUM_AVATARS ); 
+let avatar_meshes = []
+const avatar_geometry = new THREE.BoxGeometry( 0.4, 0.4, 0.1 );
 for (let i=0; i<MAX_NUM_AVATARS; i++) {
-	avatar_mesh.setColorAt(i, new THREE.Color(0xffffff))
+	let avatar_material = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+	let avatar_mesh = new THREE.Mesh( avatar_geometry, avatar_material ); 
+	scene.add( avatar_mesh );
+
+	avatar_meshes[i] = avatar_mesh
 }
-scene.add( avatar_mesh );
 
 // this is the shared state sent to all clients:
 let shared = {
@@ -178,28 +177,45 @@ function animate() {
 	// update appearance of avatars:
 	{
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
-	
-		let mat = new THREE.Matrix4()
-		let scale = new THREE.Vector3(1, 1, 1)
-		let position = new THREE.Vector3()
-		let direction = new THREE.Quaternion()
-		let color = new THREE.Color()
-		for (let i=0; i < count; i++) {
-			// update the instanced Mesh from this avatar:
+		for (let i=0; i<MAX_NUM_AVATARS; i++) {
+			let mesh = avatar_meshes[i]
 			let avatar = shared.avatars[i]
-			//console.log(avatar)
 
-			position.fromArray(avatar.head.pos)
-			direction.fromArray(avatar.head.dir)
-			mat.compose(position, direction, scale)
-			avatar_mesh.setMatrixAt(i, mat)
+			// hide and skip any meshes that we don't need to render:
+			if (i >= count) {
+				mesh.visible = false;
+				continue;
+			}
+			
+			mesh.visible = true;
+			
+			// udpate pose:
+			mesh.position.fromArray(avatar.head.pos)
+			mesh.quaternion.fromArray(avatar.head.dir)
+			mesh.updateMatrix();
 
-			color.setHex(avatar.color)
-			avatar_mesh.setColorAt(i, color)
+			// update color:
+			mesh.material.color.setHex(avatar.color)
+			mesh.material.needsUpdate = true
 		}
-		avatar_mesh.count = count
-		avatar_mesh.instanceMatrix.needsUpdate = true;
-		avatar_mesh.instanceColor.needsUpdate = true;
+	
+		// let color = new THREE.Color()
+		// for (let i=0; i < count; i++) {
+		// 	// update the instanced Mesh from this avatar:
+		// 	let avatar = shared.avatars[i]
+		// 	//console.log(avatar)
+
+		// 	position.fromArray(avatar.head.pos)
+		// 	direction.fromArray(avatar.head.dir)
+		// 	mat.compose(position, direction, scale)
+		// 	avatar_mesh.setMatrixAt(i, mat)
+
+		// 	color.setHex(avatar.color)
+		// 	avatar_mesh.setColorAt(i, color)
+		// }
+		// avatar_mesh.count = count
+		// avatar_mesh.instanceMatrix.needsUpdate = true;
+		// avatar_mesh.instanceColor.needsUpdate = true;
 	}
   
 	// now draw the scene:
