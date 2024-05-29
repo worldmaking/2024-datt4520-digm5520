@@ -15,8 +15,8 @@ const { v4: uuidv4 } = require('uuid');
 const dotenv = require("dotenv").config();
 
 // configuration:
-let server_udpate_ms = 250
-let client_timeout_seconds = 5 // seconds of inactivity to remove a client
+let server_udpate_ms = 50
+let client_timeout_seconds = 1 // seconds of inactivity to remove a client
 
 // we need this configuration to enable HTTPS where this is supported
 // (because HTTPS is a requirement for WebXR)
@@ -129,25 +129,29 @@ function updateAllClients() {
 	// remove stale avatars:
 	let t = process.uptime()
 	shared.avatars = shared.avatars.filter(a => t - a.last_message_time < client_timeout_seconds)
-	console.log(process.uptime(), shared)
 
 	// send all avatar data:
-	let msg1 = JSON.stringify({
-		type: "avatars", 
-		// only send avatars if they have a head position etc.
-		avatars: shared.avatars.filter(a => a.head)
-	})
-	wss.clients.forEach(client => {
-		client.send(msg1);
-	});
+	{
+		let msg = JSON.stringify({
+			type: "avatars", 
+			// only send avatars if they have a head position etc.
+			avatars: shared.avatars.filter(a => a.head)
+		})
+		wss.clients.forEach(client => {
+			client.send(msg);
+		});
+	}
 
-	let msg2 = JSON.stringify({
-		type: "creatures", 
-		creatures: shared.creatures
-	})
-	wss.clients.forEach(client => {
-		client.send(msg2);
-	});
+	{
+		// send all creatures
+		let msg = JSON.stringify({
+			type: "creatures", 
+			creatures: shared.creatures
+		})
+		wss.clients.forEach(client => {
+			client.send(msg);
+		});
+	}
 }
 
 	

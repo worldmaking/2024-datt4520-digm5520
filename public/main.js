@@ -63,7 +63,7 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
 
 const MAX_NUM_AVATARS = 100
-const avatar_geometry = new THREE.SphereGeometry( 0.1, 32, 16 ); 
+const avatar_geometry = new THREE.BoxGeometry( 0.4, 0.4, 0.1 ).translate(0, 0, 0); 
 const avatar_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); 
 const avatar_mesh = new THREE.InstancedMesh( avatar_geometry, avatar_material, MAX_NUM_AVATARS ); 
 for (let i=0; i<MAX_NUM_AVATARS; i++) {
@@ -143,14 +143,17 @@ function socket_send_message(msg) {
 
 ////////////////////////////////
 
-let avatarColor = new THREE.Color()
-avatarColor.setHSL(Math.random(), 0.5, 0.5)
+let avatarNav = {
+	color: new THREE.Color(),
+	pos: new THREE.Vector3(
+		Math.random()*4 - 2,
+		1.5,
+		Math.random()*4 - 2
+	),
+	dir: new THREE.Quaternion(),
+}
 
-let avatarPos = new THREE.Vector3(
-	Math.random() - 0.5,
-	1.5,
-	Math.random() - 0.5
-)
+
 
 function animate() {
 	// monitor our FPS:
@@ -159,6 +162,15 @@ function animate() {
 	// get current timing:
 	const dt = clock.getDelta();
 	const t = clock.getElapsedTime();
+
+
+	// update our nav:
+	avatarNav.dir.copy(camera.quaternion)
+
+	orbitControls.target.copy(avatarNav.pos);
+	orbitControls.update()
+
+
 
 	// update appearance of avatars:
 	{
@@ -170,9 +182,9 @@ function animate() {
 		let direction = new THREE.Quaternion()
 		let color = new THREE.Color()
 		for (let i=0; i < count; i++) {
+			// update the instanced Mesh from this avatar:
 			let avatar = shared.avatars[i]
-
-			console.log(avatar)
+			//console.log(avatar)
 
 			position.fromArray(avatar.head.pos)
 			direction.fromArray(avatar.head.dir)
@@ -195,13 +207,13 @@ function animate() {
 			type: "avatar",
 			uuid,
 			head: {
-				pos: avatarPos.toArray(),
-				dir: [0, 0, 0, 1]
+				pos: avatarNav.pos.toArray(),
+				dir: avatarNav.dir.toArray(),
 			},
 			// hand1: [0, 0, 0],
 			// hand2:  [0, 0, 0],
 			// lightball:  [0, 0, 0],
-			color: avatarColor.getHex(),
+			color: avatarNav.color.getHex(),
 			//shape: "sphere"
 		})
 	}
