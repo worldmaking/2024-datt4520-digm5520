@@ -1114,32 +1114,48 @@ socket.onclose = function (e) {
 }
 
 socket.onmessage = function (msg) {
-	if (msg.data.toString().substring(0, 1) == "{") {
-		// we received a JSON message; parse it:
-		let json = JSON.parse(msg.data)
-		// handle different message types:
-		switch (json.type) {
-			case "uuid": {
-				// set our local ID:
-				uuid = json.uuid
-			} break;
-			case "avatars": {
-				// iterate over json.avatars to update all our avatars
-				shared.avatars = json.avatars
-			} break;
-			case "creatures": {
-				// iterate over json.creatures to update all our creatures
-				shared.creatures = json.creatures
-			} break;
-			default: {
-				console.log("received json", json)
-			}
-		}
-
-	} else {
-		console.log("received", msg.data);
-	}
-}
+  if (msg.data.toString().substring(0, 1) == "{") {
+    // we received a JSON message; parse it:
+    let json = JSON.parse(msg.data);
+    // handle different message types:
+    switch (json.type) {
+      // case "uuid":
+      //   {
+      //     // set our local ID:
+      //     uuid = json.uuid;
+      //   }
+      //   break;
+      case "login-success":
+        {
+          uuid = json.uuid;
+          // json.avatar is the avatar data of client
+          const loginForm = document.getElementById("loginForm");
+          if (loginForm) {
+            loginForm.style.display = "none";
+          }
+          console.log(json.avatar);
+        }
+        break;
+      case "avatars":
+        {
+          // iterate over json.avatars to update all our avatars
+          shared.avatars = json.avatars;
+        }
+        break;
+      case "creatures":
+        {
+          // iterate over json.creatures to update all our creatures
+          shared.creatures = json.creatures;
+        }
+        break;
+      default: {
+        console.log("received json", json);
+      }
+    }
+  } else {
+    console.log("received", msg.data);
+  }
+};
 
 function socket_send_message(msg) {
 	// abort if socket is not available:
@@ -1149,6 +1165,24 @@ function socket_send_message(msg) {
 
 	//console.log(msg);
 	socket.send(msg)
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const loginButton = document.getElementById("loginButton");
+  if (loginButton) {
+    loginButton.addEventListener("click", login);
+  }
+});
+
+function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const message = {
+    type: "login",
+    username: username,
+    password: password,
+  };
+  socket_send_message(message);
 }
 
 ////////////////////////////////
