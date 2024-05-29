@@ -1,9 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">  
-<title>Lumen Final Paper</title>  
-<link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <title>Lumen Final Paper</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        var hideTOC = function () {
+            var hideThese = document.getElementsByClassName("toc-list");
+            for (var i = 0; i < hideThese.length; i++)
+                hideThese[i].style.display = "none";
+            document.getElementById("showTOC").style.display = "";
+        }
+        var showTOC = function () {
+            var showThese = document.getElementsByClassName("toc-list");
+            for (var i = 0; i < showThese.length; i++)
+                showThese[i].style.display = "";
+            document.getElementById("showTOC").style.display = "none";
+        }
+    </script>
 </head>
 
 
@@ -22,8 +37,27 @@
     <p>Add your names here.</p>
     <p>Prepared for York University course DIGM5520, 2024-05-31.</p>
 
-    <h2>Contents</h2>
-    <p>Table of contents</p>
+    <div id="toc">
+        <p><span style="font-weight:bold;" ;>Contents</span> (<a href='javascript:void(null)' class='toc-list'
+                onclick='hideTOC()'>hide</a><a href='javascript:void(null)' id='showTOC' style="display:none;"
+                onclick='showTOC()'>show</a>)</p>
+        <ul class="toc-list">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#related">Related Works</a></li>
+            <li><a href="#dev">Development</a>
+                <ul>
+                    <li><a href="#sound">Sound Synthesis</a></li>
+                    <li><a href="#agent">Agent Design and Interaction</a></li>
+                    <li><a href="#avatar">Player Avatar Design, Interaction, and Navigation</a></li>
+                    <li><a href="#database">Databasing and User Persistence</a></li>
+                    <li><a href="#challenge">Challenges and Solutions</a></li>
+                </ul>
+            </li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#future">Future Work</a></li>
+            <li><a href="#ref">References</a></li>
+        </ul>
+    </div>
 
     <h2>Overview</h2>
     <p>Project desciption</p>
@@ -36,7 +70,34 @@
     <p></p>
 
     <h3>Agent Design and Interaction</h3>
-    <p></p>
+    <p>
+        The goals of agent interaction changed throughout the course of the project. Originally the goal was to make
+        the agents defined to a set of species that had target species and would move around. When the project was
+        in the ideation phase and the idea of echolocation was mentioned, the agents were to be hunting with timed
+        updated based on the pulses of vision from the user or whatever other source was to be used. As the vision
+        for the project changed, it became clear what core ideas for the agents would stick into the final project.
+        Agents, in terms of behaviour, would need to:
+        <ul><li>Hunt each other</li>
+        <li>Wander aimlessly</li>
+        <li>Be interested in light sources</li>
+        <li>Stay within a certain radius of the world origin</li>
+        </ul>
+        
+        The first aim was simply to make the agents move. Agents existed as placeholder red triangles. Giving them a
+        starter random position and a random goal position allowed them to move between those two, then assign
+        themselves a new goal to move towards. Agents were then given a boolean that defined if they were hunting,
+        and the species idea was dropped to move more towards an individual behaviour model for agents. This means
+        agents will hunt any other agents, regardless of properties. If an agent was in hunting mode, it will speed
+        dynamically towards its target until it is caught up. Removing the agents from the pool after they had been
+        caught proved challenging, but after many trials and just as many errors, the population was able to update
+        itself to account for the hunting behaviour. The light source idea for the final project changed a few times
+        so from early on in agent behaviour design we accounted for the idea of certain points the agents would be
+        interested in. The agents will, when close to a point that is designated as a "light source", will attempt
+        to stay close to it and will congregate to hunt each other in the general area of the light.
+
+        At this point the agents still existed as placeholder triangles but the behaviour of them hunting,
+        interacting with light, and wandering was working and could be integrated with the rest of the project.
+    </p>
 
     <h3>Player Avatar Design, Interaction, and Navigation</h3>
     <p></p>
@@ -55,4 +116,5 @@
 
     <h2>References</h2>
 </body>
+
 </html>
