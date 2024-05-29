@@ -9,9 +9,14 @@ const https = require("https");
 
 const express = require('express')
 const ws = require('ws')
+const { v4: uuidv4 } = require('uuid');
 
 // this is used on the server to load in settings from a .env file:
 const dotenv = require("dotenv").config();
+
+// configuration:
+let server_udpate_ms = 50
+let client_timeout_seconds = 1 // seconds of inactivity to remove a client
 
 // we need this configuration to enable HTTPS where this is supported
 // (because HTTPS is a requirement for WebXR)
@@ -64,35 +69,43 @@ server.listen(PORT, function() {
 const wss = new ws.Server({ server });
 wss.binaryType = 'arraybuffer';
 
-let sharedbuffer = new Float32Array(1024 * 8)
-
+// this is the shared state we will send to all clients:
 let shared = {
-	clients: []
+	avatars: [],
+	creatures: []
 }
 
 // handle each new connections from a client:
 wss.on('connection', function(client, request) {
-	const ip = request.socket.remoteAddress;
-	console.log("I got a connection from", ip);
+	// create a new unique ID for this session:
+	const uuid = uuidv4();
+	console.log("I got a connection as ", uuid);
 
-	let self = {
-		hue: Math.random(),
-		x: 0.5, 
-		y: 0.5
+	// create a new entry in our avatar list for this client:
+	let avatar = {
+		uuid,
+		// mark the time when we last had a message
+		last_message_time: process.uptime()
 	}
-	shared.clients.push(self)
+	shared.avatars.push(avatar)
 
 	client.on('error', console.error);
 
 	client.on('message', function message(data) {
+
 		if (data.toString().substring(0,1) == "{") {
 			let msg = JSON.parse(data)
-			//console.log(msg)
 
-			switch (msg.what) {
-				case "pointermove": {
-					self.x = msg.x
-					self.y = msg.y
+			switch (msg.type) {
+				case "avatar": {
+					// verify that the UUID matches:
+					if (msg.uuid == uuid) {
+						// copy in properties from the message:
+						Object.assign(avatar, msg)
+						// add a timestamp (so we can check for stale clients)
+						avatar.last_message_time = process.uptime()
+					}
+
 				} break;
 				default: {
 					//console.log('received: %s', msg);
@@ -100,20 +113,46 @@ wss.on('connection', function(client, request) {
 			}
 
 		} else {
-			console.log('received: %s', data);
+			//console.log('received: %s', data);
 		}
 	});
 
-	client.send('hi');
+	client.send(JSON.stringify({
+		type: "uuid",
+		uuid
+	}));
 });
 
 // to send a message to *everyone*:
 function updateAllClients() {
-	//let msg = JSON.stringify(shared)
-	let msg = sharedbuffer
-	wss.clients.forEach(client => {
-		//client.send(msg);
-	});
+
+	// remove stale avatars:
+	let t = process.uptime()
+	shared.avatars = shared.avatars.filter(a => t - a.last_message_time < client_timeout_seconds)
+
+	// send all avatar data:
+	{
+		let msg = JSON.stringify({
+			type: "avatars", 
+			// only send avatars if they have a head position etc.
+			avatars: shared.avatars.filter(a => a.head)
+		})
+		wss.clients.forEach(client => {
+			client.send(msg);
+		});
+	}
+
+	{
+		// send all creatures
+		let msg = JSON.stringify({
+			type: "creatures", 
+			creatures: shared.creatures
+		})
+		wss.clients.forEach(client => {
+			client.send(msg);
+		});
+	}
 }
 
-setInterval(updateAllClients, 50)
+	
+setInterval(updateAllClients, server_udpate_ms)
