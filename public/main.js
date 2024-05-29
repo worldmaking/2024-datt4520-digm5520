@@ -983,6 +983,12 @@ function animate() {
 				continue;
 			}
 
+			// don't render our own avatar
+			if (avatar.uuid == uuid) {
+				mesh.visible = false;
+				continue;
+			}
+
 			mesh.visible = true;
 
 			// udpate pose:
@@ -1126,87 +1132,4 @@ let avatarNav = {
 
 
 
-function animateold() {
-	// monitor our FPS:
-	stats.begin();
-
-	// get current timing:
-	const dt = clock.getDelta();
-	const t = clock.getElapsedTime();
-
-
-	// update our nav:
-	avatarNav.dir.copy(camera.quaternion)
-
-	orbitControls.target.copy(avatarNav.pos);
-	orbitControls.update()
-
-
-
-	// update appearance of avatars:
-	{
-		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
-		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-			let mesh = avatar_meshes[i]
-			let avatar = shared.avatars[i]
-
-			// hide and skip any meshes that we don't need to render:
-			if (i >= count) {
-				mesh.visible = false;
-				continue;
-			}
-
-			mesh.visible = true;
-
-			// udpate pose:
-			mesh.position.fromArray(avatar.head.pos)
-			mesh.quaternion.fromArray(avatar.head.dir)
-			mesh.updateMatrix();
-
-			// update color:
-			mesh.material.color.setHex(avatar.color)
-			mesh.material.needsUpdate = true
-		}
-
-		// let color = new THREE.Color()
-		// for (let i=0; i < count; i++) {
-		// 	// update the instanced Mesh from this avatar:
-		// 	let avatar = shared.avatars[i]
-		// 	//console.log(avatar)
-
-		// 	position.fromArray(avatar.head.pos)
-		// 	direction.fromArray(avatar.head.dir)
-		// 	mat.compose(position, direction, scale)
-		// 	avatar_mesh.setMatrixAt(i, mat)
-
-		// 	color.setHex(avatar.color)
-		// 	avatar_mesh.setColorAt(i, color)
-		// }
-		// avatar_mesh.count = count
-		// avatar_mesh.instanceMatrix.needsUpdate = true;
-		// avatar_mesh.instanceColor.needsUpdate = true;
-	}
-
-	// now draw the scene:
-	renderer.render(scene, camera);
-
-	if (uuid) {
-		socket_send_message({
-			type: "avatar",
-			uuid,
-			head: {
-				pos: avatarNav.pos.toArray(),
-				dir: avatarNav.dir.toArray(),
-			},
-			// hand1: [0, 0, 0],
-			// hand2:  [0, 0, 0],
-			// lightball:  [0, 0, 0],
-			color: avatarNav.color.getHex(),
-			//shape: "sphere"
-		})
-	}
-
-	// monitor our FPS:
-	stats.end();
-}
 renderer.setAnimationLoop(animate);
