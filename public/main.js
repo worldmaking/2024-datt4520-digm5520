@@ -8,6 +8,17 @@ import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { Timer } from "three/addons/misc/Timer.js";
 
+const onMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+  navigator.userAgent
+);
+let nav = {
+  lookx: 0,
+  looky: 0
+};
+
+const raycastingObjects = [];
+
+const scene = new THREE.Scene();
 
 const overlay = document.getElementById("overlay")
 
@@ -57,7 +68,7 @@ window.addEventListener("resize", function () {
 });
 
 //added/////////////////////////////////////////////////////////////////////////////////////////////
-// Pointer lock requires a user action to start, e.g. click on canvas to start pointerlock:
+//Pointer lock requires a user action to start, e.g. click on canvas to start pointerlock:
 renderer.domElement.addEventListener("click", function () {
 	controls.lock();
 });
@@ -188,7 +199,7 @@ joystickL.on("move", function (evt, data) {
 });
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
-// Create ghost head with reflective material
+//Create ghost head with reflective material
 const ghostGeometry = new THREE.SphereGeometry(2, 16, 16);
 const ghostMaterial = new THREE.MeshStandardMaterial({
   color: "#99ccff",
@@ -198,7 +209,7 @@ const ghostMaterial = new THREE.MeshStandardMaterial({
 const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
 ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
 
-// Create eyes
+// // Create eyes
 const eyeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
 const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
@@ -275,12 +286,12 @@ scene.add(pointLight1);
 const raycaster = new THREE.Raycaster();
 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
 
-// const pointer = new THREE.Vector2();
+const pointer = new THREE.Vector2();
 
-// function onPointerMove(event) {
-//   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-//   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-// }
+function onPointerMove(event) {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
 
 // point light animation
 let targetPosition = new THREE.Vector3(0, 0, 0);
@@ -320,7 +331,7 @@ function easeOutCubic(x) {
   return 1 - Math.pow(1 - x, 3);
 }
 
-// Helper functions
+// // Helper functions
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -518,13 +529,11 @@ function getIntersections(controller) {
 // adding controller models:
 controller.addEventListener("connected", function (event) {});
 controller.addEventListener("disconnected", function () {});
-////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////
 let prevTime = performance.now();
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 const clock = new THREE.Clock();
-
-const scene = new THREE.Scene();
 
 // const gridHelper = new THREE.GridHelper(10, 10);
 // scene.add(gridHelper);
@@ -559,7 +568,239 @@ function updateSceneFromServer(shared) {
 	sphere.instanceMatrix.needsUpdate = true;
 }
 
+//Jacob Start
+// let material2 = new THREE.MeshBasicMaterial({
+//   vertexColors: true,
+//   side: THREE.DoubleSide
+// });
+
+const boundaryX = Math.floor(Math.random() * 4);
+const boundaryY = Math.floor(Math.random() * 4);
+const boundaryZ = Math.floor(Math.random() * 4);
+
+const agentPositions = new Float32Array(99);
+const agentColors = new Float32Array(99);
+for (let i = 0; i < agentPositions.length; i += 3) {
+  agentPositions[i] = Math.random() - 0.5 + boundaryX;
+  agentPositions[i + 1] = Math.random() - 0.5 + boundaryY;
+  agentPositions[i + 2] = Math.random() - 0.5 + boundaryZ;
+
+  agentColors[i] = Math.random();
+  agentColors[i + 1] = Math.random();
+  agentColors[i + 2] = Math.random();
+  //}
+}
+
+const agentGeometry = new THREE.BufferGeometry();
+agentGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(agentPositions, 3)
+);
+agentGeometry.setAttribute(
+  "color",
+  new THREE.Float32BufferAttribute(agentColors),
+  3
+);
+const agentMaterial = new THREE.MeshBasicMaterial({
+  vertexColors: true,
+  side: THREE.DoubleSide
+});
+
+//Code Start
+
+//Arrays of shapes
+const vertices2 = [
+  new Float32Array([
+    -0.3,
+    -0.3,
+    0.3, // v0
+    0.3,
+    -0.3,
+    0.3, // v1
+    0.3,
+    0.3,
+    0.3 // v2
+  ]),
+  new Float32Array([
+    -0.3,
+    -0.3,
+    0.3,
+    0.3,
+    -0.3,
+    0.3,
+    0.3,
+    0,
+    0.3,
+    0,
+    3.0,
+    0.3,
+    -0.3,
+    0,
+    0.3 // v3
+  ])
+];
+
+let lightPoints = [];
+let borderSize = 20;
+let MaxNumOfAgents = 100;
+let minSpeed = 0.002;
+let maxSpeed = 0.02;
+let agents = [];
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getRandomAgent(self) {
+  let a;
+  {
+    a = pick(agents);
+  }
+  return a;
+}
+
+//Call this to add 1 random new agent
+function newAgent() {
+  let points = getRandomInt(0, getRandomInt(0, vertices2.length-1));
+  console.log(points, vertices2.length);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(vertices2[points], 3)
+  );
+  const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+  const colors = [];
+  for (let i = 0; i < vertices2[points].length / 3; i++) {
+    colors.push(color.r, color.g, color.b);
+  }
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  let mesh = new THREE.Mesh(geometry, agentMaterial);
+
+  function dispose(a) {
+    // geometry.getAttribute("position").remove()
+    // geometry.getAttribute("color").dispose()
+    scene.remove(a);
+    //mesh.dispose()
+  }
+
+  agents.push({
+    pos: randomVec(),
+    mesh: mesh,
+    speed: Math.random() * maxSpeed - minSpeed,
+    goal: randomVec(),
+    hunting: false,
+    target: getRandomAgent(), //getRandomInt(agents.length)
+    dead: false,
+
+    dispose
+  });
+
+  agents[agents.length - 1].mesh.position.x = agents[agents.length - 1].pos.x;
+  agents[agents.length - 1].mesh.position.y = agents[agents.length - 1].pos.y;
+  agents[agents.length - 1].mesh.position.z = agents[agents.length - 1].pos.z;
+  scene.add(agents[agents.length - 1].mesh);
+}
+
+//Draws Initial Agents
+for (let i = 0; i < MaxNumOfAgents; i++) {
+  newAgent();
+}
+
+//Updates Agent positions and Behvaiours. Needs to be animated.
+function moveAgents() {
+  //Splicer Array
+  // let splicer = [];
+
+  //Limit to borders
+  //for (let i = 0; i < agents.length; i++) {
+  for (let a of agents) {
+    if (
+      a.pos.distanceTo(new THREE.Vector3(0, borderSize / 3, 0)) > borderSize ||
+      a.pos.y < 0
+    ) {
+      a.pos = randomVec();
+      a.goal = randomVec();
+    }
+
+    //If agent is not hunting or looking at lights
+    if (a.hunting === false) {
+      if (a.goal.distanceTo(a.pos) > 0.5) {
+        a.pos.lerp(a.goal, a.speed);
+        a.mesh.position.x = a.pos.x;
+        a.mesh.position.y = a.pos.y;
+        a.mesh.position.z = a.pos.z;
+      } else {
+        a.goal = randomVec();
+        a.speed = Math.random() * maxSpeed - minSpeed;
+        if (getRandomInt(0, 10) < 3) {
+          a.hunting = true;
+          a.target = getRandomAgent(a);
+        } else if(a.pos.distanceTo(pointLight1.position) < 10 && getRandomInt(0, 10) < 10){
+          while (a.goal.distanceTo(pointLight1.position) > 1) {
+                a.goal = randomVec();
+              }
+        }
+        
+        /*else if (lightPoint1.length > 0 && getRandomInt(0, 10) > 5) {
+          for (let b of lightPoints) {
+            if (a.pos.distanceTo(b.pos) < 5 && getRandomInt(0, 10) < 5) {
+              while (a.goal.distanceTo(b.pos) > 1) {
+                a.goal = randomVec();
+              }
+            }
+          }
+        }*/
+      }
+    } else if (a.hunting === true) {
+      if (a.target.pos.distanceTo(a.pos) < a.speed + 0.05) {
+        console.log("caught!");
+        //What happens when the agent catches its prey
+        a.target.dead = true;
+        a.target = getRandomAgent(a);
+        a.hunting = false;
+        a.goal = randomVec();
+        a.speed = Math.random() * maxSpeed - minSpeed;
+      } else {
+        a.goal = a.target.pos;
+        a.pos.lerp(a.goal, a.speed);
+        a.mesh.position.x = a.pos.x;
+        a.mesh.position.y = a.pos.y;
+        a.mesh.position.z = a.pos.z;
+        a.speed += 0.001;
+      }
+    }
+
+    //Rotates Agents;
+    a.mesh.rotation.x += Math.random() * 0.01 - 0.01;
+    a.mesh.rotation.y += Math.random() * 0.01 - 0.01;
+    a.mesh.rotation.z += Math.random() * 0.01 - 0.01;
+  }
+
+  // filter out dead agent:
+  agents.forEach((a) => {
+    if (a.dead) a.dispose(a.mesh);
+  });
+  agents = agents.filter((a) => !a.dead);
+  if (agents.length < 3) {
+    newAgent();
+  }
+}
+
+//Returns random Vector pos
+function randomVec() {
+  return new THREE.Vector3(
+    getRandomInt(0, borderSize) - borderSize / 2,
+    getRandomInt(0, borderSize),
+    getRandomInt(0, borderSize) - borderSize / 2
+  );
+}
+
+//Jacob End
+
 function animate(timestamp) {
+
+  moveAgents();
+
 	// monitor our FPS:
 	stats.begin();
 	
