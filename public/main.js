@@ -63,6 +63,9 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
 
 const MAX_NUM_AVATARS = 100
+
+// TODO: change this from instanced mesh to an array of meshes
+// because our avatar design isn't suitable for instanced mesh
 const avatar_geometry = new THREE.BoxGeometry( 0.4, 0.4, 0.1 ).translate(0, 0, 0); 
 const avatar_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); 
 const avatar_mesh = new THREE.InstancedMesh( avatar_geometry, avatar_material, MAX_NUM_AVATARS ); 
