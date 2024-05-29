@@ -202,56 +202,66 @@ if (onMobile == true) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Create ghost head with reflective material
-const ghostGeometry = new THREE.SphereGeometry(2, 16, 16);
-const ghostMaterial = new THREE.MeshStandardMaterial({
-	color: "#99ccff",
-	roughness: 0.2,
-	metalness: 0.5
-});
-const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
-ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
+//const avatarGroupe;
+function makeAvatarGroup() {
+	const ghostGeometry = new THREE.SphereGeometry(2, 16, 16);
+	const ghostMaterial = new THREE.MeshStandardMaterial({
+		color: "#99ccff",
+		roughness: 0.2,
+		metalness: 0.5
+	});
+	const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
+	ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
 
-// // Create eyes
-const eyeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+	// // Create eyes
+	const eyeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+	const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
-const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-leftEye.position.set(-0.5, 0, -1.8);
-//ghostHead.add(leftEye);
+	const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+	leftEye.position.set(-0.5, 0, -1.8);
+	//ghostHead.add(leftEye);
 
-const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-rightEye.position.set(0.5, 0, -1.8);
-//ghostHead.add(rightEye);
+	const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+	rightEye.position.set(0.5, 0, -1.8);
+	//ghostHead.add(rightEye);
 
-// Create hands with reflective material
-const handGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-const handMaterial = new THREE.MeshStandardMaterial({
-	color: "#99ccff",
-	roughness: 0.2,
-	metalness: 0.5
-});
+	// Create hands with reflective material
+	const handGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+	const handMaterial = new THREE.MeshStandardMaterial({
+		color: "#99ccff",
+		roughness: 0.2,
+		metalness: 0.5
+	});
 
-const leftHand = new THREE.Mesh(handGeometry, handMaterial);
-leftHand.position.set(-1, -1, -3.5);
-//ghostHead.add(leftHand);
+	const leftHand = new THREE.Mesh(handGeometry, handMaterial);
+	leftHand.position.set(-1, -1, -3.5);
+	//ghostHead.add(leftHand);
 
-const rightHand = new THREE.Mesh(handGeometry, handMaterial);
-rightHand.position.set(1, -1, -3.5);
-//ghostHead.add(rightHand);
+	const rightHand = new THREE.Mesh(handGeometry, handMaterial);
+	rightHand.position.set(1, -1, -3.5);
+	//ghostHead.add(rightHand);
 
-const avatarGroup = new THREE.Group();
-avatarGroup.add(ghostHead);
-avatarGroup.add(leftEye);
-avatarGroup.add(rightEye);
-avatarGroup.add(leftHand);
-avatarGroup.add(rightHand);
-avatarGroup.scale.set(0.3, 0.3, 0.3);
-avatarGroup.position.set(
-	camera.position.x,
-	camera.position.y,
-	camera.position.z + 0.7
-);
+	const tempAvatar = new THREE.Group();
+	tempAvatar.add(ghostHead);
+	tempAvatar.add(leftEye);
+	tempAvatar.add(rightEye);
+	tempAvatar.add(leftHand);
+	tempAvatar.add(rightHand);
+	tempAvatar.scale.set(0.3, 0.3, 0.3);
+	tempAvatar.position.set(
+		camera.position.x,
+		camera.position.y,
+		camera.position.z + 0.7
+	);
+
+	return tempAvatar;
+}
+
+const avatarGroup = makeAvatarGroup();
+
 scene.add(avatarGroup);
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 const sphereColor = 0xf7e09a;
 const planeColor = 0x4d4f4f;
@@ -548,13 +558,14 @@ scene.add(directionalLight);
 
 const MAX_NUM_AVATARS = 100
 let avatar_meshes = []
-const avatar_geometry = new THREE.BoxGeometry(0.4, 0.4, 0.1);
+//const avatar_geometry = new THREE.BoxGeometry(0.4, 0.4, 0.1);
 for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-	let avatar_material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-	let avatar_mesh = new THREE.Mesh(avatar_geometry, avatar_material);
-	scene.add(avatar_mesh);
+	//let avatar_material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+	//let avatar_mesh = new THREE.Mesh(avatar_geometry, avatar_material);
+	let userAvatar = makeAvatarGroup();
+	scene.add(userAvatar);
 
-	avatar_meshes[i] = avatar_mesh
+	avatar_meshes[i] = userAvatar
 }
 
 // this is the shared state sent to all clients:
@@ -807,7 +818,7 @@ function animate() {
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	const timestamp = t
-	const delta = dt 
+	const delta = dt
 
 	if (!onMobile) {
 		dir.z = Number(Forward) - Number(Backward);
