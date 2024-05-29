@@ -569,6 +569,12 @@ let shared = {
 //   side: THREE.DoubleSide
 // });
 
+const MAX_NUM_CREATURES = 99
+const creature_mesh = new THREE.BoxGeometry(0.1, 0.2, 0.6);
+const creature_material = new THREE.MeshStandardMaterial()
+const creatures = new THREE.InstancedMesh(creature_mesh, creature_material, MAX_NUM_CREATURES)
+scene.add(creatures)
+
 const boundaryX = Math.floor(Math.random() * 4);
 const boundaryY = Math.floor(Math.random() * 4);
 const boundaryZ = Math.floor(Math.random() * 4);
@@ -781,6 +787,27 @@ function moveAgents() {
 	}
 }
 
+function updateCreatures() {
+	creatures.count = Math.min(MAX_NUM_CREATURES, agents.length)
+	let mat = new THREE.Matrix4()
+	let position = new THREE.Vector3()
+	let quaternion = new THREE.Quaternion()
+	let scale = new THREE.Vector3(1, 1, 1)
+	let color = new THREE.Color()
+	for (let i=0; i<creatures.count; i++) {
+		let agent = agents[i]
+
+		position.copy(agent.mesh.position)
+		quaternion.copy(agent.mesh.quaternion)
+		mat.compose(position, quaternion, scale)
+		creatures.setMatrixAt(i, mat)
+
+		//creatures.setColorAt(i, color)
+	}
+	creatures.instanceMatrix.needsUpdate = true;
+	//creatures.instanceColor.needsUpdate = true;
+}
+
 //Returns random Vector pos
 function randomVec() {
 	return new THREE.Vector3(
@@ -804,6 +831,8 @@ function animate() {
 
 
 	moveAgents();
+
+	updateCreatures()
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	const timestamp = t
