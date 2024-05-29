@@ -62,30 +62,20 @@ scene.add(light);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
 
-const MAX_NUM_SPHERES = 100
-const geometry = new THREE.SphereGeometry( 0.1, 32, 16 ); 
-const material = new THREE.MeshStandardMaterial( { color: 0xffffff } ); 
-const sphere = new THREE.InstancedMesh( geometry, material, MAX_NUM_SPHERES ); 
-scene.add( sphere );
-
-function updateSceneFromServer(shared) {
-	let count = Math.min(shared.clients.length, MAX_NUM_SPHERES)
-
-	let mat = new THREE.Matrix4()
-	let color = new THREE.Color()
-	for (let i=0; i < count; i++) {
-		let client = shared.clients[i]
-
-		mat.setPosition((client.x-0.5)*2, (1.5-client.y)*2, 0)
-		color.setHSL(client.hue*2, 1, 0.5)
-
-		sphere.setMatrixAt(i, mat)
-		sphere.setColorAt(i, color)
-	}
-	sphere.count = count
-	sphere.instanceMatrix.needsUpdate = true;
+const MAX_NUM_AVATARS = 100
+const avatar_geometry = new THREE.SphereGeometry( 0.1, 32, 16 ); 
+const avatar_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); 
+const avatar_mesh = new THREE.InstancedMesh( avatar_geometry, avatar_material, MAX_NUM_AVATARS ); 
+for (let i=0; i<MAX_NUM_AVATARS; i++) {
+	avatar_mesh.setColorAt(i, new THREE.Color(0xffffff))
 }
+scene.add( avatar_mesh );
 
+// this is the shared state sent to all clients:
+let shared = {
+	avatars: [],
+	creatures: []
+}
   
 /////////////////////////////////////////
 
@@ -113,8 +103,6 @@ socket.onclose = function(e) {
 	setTimeout(() => location.reload(), 2000)
 }
 
-let last_msg_t = clock.getElapsedTime();
-
 socket.onmessage = function(msg) {
 	if (msg.data.toString().substring(0,1) == "{") {
 		// we received a JSON message; parse it:
@@ -127,9 +115,11 @@ socket.onmessage = function(msg) {
 			} break;
 			case "avatars": {
 				// iterate over json.avatars to update all our avatars
+				shared.avatars = json.avatars
 			} break;
 			case "creatures": {
 				// iterate over json.creatures to update all our creatures
+				shared.creatures = json.creatures
 			} break;
 			default: {
 				console.log("received json", json)
@@ -153,6 +143,14 @@ function socket_send_message(msg) {
 
 ////////////////////////////////
 
+let avatarColor = new THREE.Color()
+avatarColor.setHSL(Math.random(), 0.5, 0.5)
+
+let avatarPos = new THREE.Vector3(
+	Math.random() - 0.5,
+	1.5,
+	Math.random() - 0.5
+)
 
 function animate() {
 	// monitor our FPS:
@@ -161,6 +159,33 @@ function animate() {
 	// get current timing:
 	const dt = clock.getDelta();
 	const t = clock.getElapsedTime();
+
+	// update appearance of avatars:
+	{
+		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
+	
+		let mat = new THREE.Matrix4()
+		let scale = new THREE.Vector3(1, 1, 1)
+		let position = new THREE.Vector3()
+		let direction = new THREE.Quaternion()
+		let color = new THREE.Color()
+		for (let i=0; i < count; i++) {
+			let avatar = shared.avatars[i]
+
+			console.log(avatar)
+
+			position.fromArray(avatar.head.pos)
+			direction.fromArray(avatar.head.dir)
+			mat.compose(position, direction, scale)
+			avatar_mesh.setMatrixAt(i, mat)
+
+			color.setHex(avatar.color)
+			avatar_mesh.setColorAt(i, color)
+		}
+		avatar_mesh.count = count
+		avatar_mesh.instanceMatrix.needsUpdate = true;
+		avatar_mesh.instanceColor.needsUpdate = true;
+	}
   
 	// now draw the scene:
 	renderer.render(scene, camera);
@@ -170,14 +195,14 @@ function animate() {
 			type: "avatar",
 			uuid,
 			head: {
-				position: {x: 0, y: 0, z: 0},
-				direction: {x: 0, y: 0, z: 0, w: 0}
+				pos: avatarPos.toArray(),
+				dir: [0, 0, 0, 1]
 			},
-			hand1: {x: 0, y: 0, z: 0},
-			hand2: {x: 0, y: 0, z: 0},
-			lightball: {x: 0, y: 0, z: 0},
-			color: {r: 0, g: 0, b: 0},
-			shape: "sphere"
+			// hand1: [0, 0, 0],
+			// hand2:  [0, 0, 0],
+			// lightball:  [0, 0, 0],
+			color: avatarColor.getHex(),
+			//shape: "sphere"
 		})
 	}
 

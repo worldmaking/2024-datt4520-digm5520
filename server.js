@@ -16,7 +16,7 @@ const dotenv = require("dotenv").config();
 
 // configuration:
 let server_udpate_ms = 250
-let client_timeout_seconds = 1 // seconds of inactivity to remove a client
+let client_timeout_seconds = 5 // seconds of inactivity to remove a client
 
 // we need this configuration to enable HTTPS where this is supported
 // (because HTTPS is a requirement for WebXR)
@@ -134,7 +134,8 @@ function updateAllClients() {
 	// send all avatar data:
 	let msg1 = JSON.stringify({
 		type: "avatars", 
-		avatars: shared.avatars
+		// only send avatars if they have a head position etc.
+		avatars: shared.avatars.filter(a => a.head)
 	})
 	wss.clients.forEach(client => {
 		client.send(msg1);
