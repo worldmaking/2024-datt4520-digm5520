@@ -1163,6 +1163,114 @@ let avatarNav = {
 	dir: new THREE.Quaternion(),
 }
 
-
-
 renderer.setAnimationLoop(animate);
+
+////// AUDIO ///////
+
+async function audiosetup() {
+
+	// score
+	let lead = [
+		"Bb3 s",
+		"A3  s",
+		"Bb3 e",
+		"G3  e",
+		"A3  e",
+		"G3  e",
+		"F3  e",
+		"G3  ee",
+
+		"G3  e",
+		"A3  e",
+		"Bb3 e",
+		"A3  e",
+		"G3  e",
+		"A3  e",
+		"F3  q",
+
+		"B4  s",
+		"A4  s",
+		"G4  e",
+		"A4  e",
+		"B4  e",
+		"C5  e",
+		"D5  q",
+
+		"E4  s",
+		"F4  s",
+		"G4  e",
+		"F4  e",
+		"E4  e",
+		"D4  e",
+		"C4  q",
+
+		"E4  e",
+		"F4  e",
+		"G4  e",
+		"A4  e",
+		"B4  e",
+		"C5  e",
+		"D5  e",
+		"E5  q",
+		"C5  h",
+		"G4  e",
+		"E4  e",
+		"C4  hh"
+	];
+
+	let lead2 = [
+		"C4  q",
+		"E4  q",
+		"G4  q",
+		"C5  qd",
+		"A3  q",
+		"C4  q",
+		"E4  q",
+		"A4  q",
+		"F3  q",
+		"A3  q",
+		"C4  q",
+		"F4  q",
+		"G3  q",
+		"B3  q",
+		"D4  q",
+		"G4  qd"
+	];
+
+
+	// create an AudioListener and add it to the camera
+	// (this embeds the WebAudio spatialization feature of audioContext.listener)
+	const listener = new THREE.AudioListener();
+	camera.add(listener);
+
+	// get the AudioContext
+	const audioContext = listener.context;
+	// WebAudio requires a click to start audio:
+	document.body.onclick = () => {
+		audioContext.resume();
+	};
+
+	function makeAudioSequence(score, position) {
+		let tempo = 10;
+		let sequence1 = new Sequence(audioContext, tempo, score);
+
+		sequence1.staccato = 0.55;
+
+		let mesh = new THREE.Mesh(
+			new THREE.SphereGeometry(0.3),
+			new THREE.MeshStandardMaterial()
+		);
+		mesh.position.copy(position);
+		scene.add(mesh);
+		let sound = new THREE.PositionalAudio(listener);
+		mesh.add(sound);
+		sequence1.play(audioContext.currentTime);
+		sound.setNodeSource(sequence1.output);
+	}
+
+
+	makeAudioSequence(lead, new THREE.Vector3(-2, 0.5, -2));
+	makeAudioSequence(lead2, new THREE.Vector3(2, 0.5, 2));
+}
+
+audiosetup()
