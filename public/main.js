@@ -7,6 +7,8 @@ import { XRButton } from "three/addons/webxr/XRButton.js";
 
 const overlay = document.getElementById("overlay")
 
+let uuid = ""
+
 // add a stats view to the page to monitor performance:
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -84,21 +86,6 @@ function updateSceneFromServer(shared) {
 	sphere.instanceMatrix.needsUpdate = true;
 }
 
-function animate() {
-	// monitor our FPS:
-	stats.begin();
-	
-	// get current timing:
-	const dt = clock.getDelta();
-	const t = clock.getElapsedTime();
-  
-	// now draw the scene:
-	renderer.render(scene, camera);
-
-	// monitor our FPS:
-	stats.end();
-}
-renderer.setAnimationLoop(animate);
   
 /////////////////////////////////////////
 
@@ -120,36 +107,81 @@ socket.onerror = function(err) {
 }
 socket.onclose = function(e) { 
 	console.log("websocket disconnected from "+addr); 
-
 	// a useful trick:
 	// if the server disconnects (happens a lot during development!)
 	// after 2 seconds, reload the page to try to reconnect:
 	setTimeout(() => location.reload(), 2000)
 }
 
-document.addEventListener("pointermove", e => {
-    // is the socket available?
-    if (socket.readyState !== WebSocket.OPEN) return;
-
-	// we can send any old string:
-    //socket.send("boo!")
-	// or send an object:
-	socket.send(JSON.stringify({
-		what: "pointermove",
-		x: e.clientX / window.innerWidth,
-		y: e.clientY / window.innerHeight,
-	}))
-});
-
 let last_msg_t = clock.getElapsedTime();
 
 socket.onmessage = function(msg) {
-
 	if (msg.data.toString().substring(0,1) == "{") {
-		// we received a JSON message:
-		let json = JSON.parse(msg)
+		// we received a JSON message; parse it:
+		let json = JSON.parse(msg.data)
+		// handle different message types:
+		switch (json.type) {
+			case "uuid": {
+				// set our local ID:
+				uuid = json.uuid
+			} break;
+			case "avatars": {
+				// iterate over json.avatars to update all our avatars
+			} break;
+			case "creatures": {
+				// iterate over json.creatures to update all our creatures
+			} break;
+			default: {
+				console.log("received json", json)
+			}
+		}
 
 	} else {
 		console.log("received", msg.data);
 	}
 }
+
+function socket_send_message(msg) {
+	// abort if socket is not available:
+	if (socket.readyState !== WebSocket.OPEN) return;
+	// convert JSON to string:
+	if (typeof msg != "string") msg = JSON.stringify(msg);
+
+	//console.log(msg);
+	socket.send(msg)
+}
+
+////////////////////////////////
+
+
+function animate() {
+	// monitor our FPS:
+	stats.begin();
+	
+	// get current timing:
+	const dt = clock.getDelta();
+	const t = clock.getElapsedTime();
+  
+	// now draw the scene:
+	renderer.render(scene, camera);
+
+	if (uuid) {
+		socket_send_message({
+			type: "avatar",
+			uuid,
+			head: {
+				position: {x: 0, y: 0, z: 0},
+				direction: {x: 0, y: 0, z: 0, w: 0}
+			},
+			hand1: {x: 0, y: 0, z: 0},
+			hand2: {x: 0, y: 0, z: 0},
+			lightball: {x: 0, y: 0, z: 0},
+			color: {r: 0, g: 0, b: 0},
+			shape: "sphere"
+		})
+	}
+
+	// monitor our FPS:
+	stats.end();
+}
+renderer.setAnimationLoop(animate);
