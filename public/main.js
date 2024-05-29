@@ -573,6 +573,9 @@ const MAX_NUM_CREATURES = 99
 const creature_mesh = new THREE.BoxGeometry(0.1, 0.2, 0.6);
 const creature_material = new THREE.MeshStandardMaterial()
 const creatures = new THREE.InstancedMesh(creature_mesh, creature_material, MAX_NUM_CREATURES)
+for (let i=0; i<MAX_NUM_CREATURES; i++) {
+	creatures.setColorAt(i, new THREE.Color().setHSL(Math.random(), 0.7, 0.7))
+}
 scene.add(creatures)
 
 const boundaryX = Math.floor(Math.random() * 4);
@@ -676,6 +679,8 @@ function newAgent() {
 	}
 	geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 	let mesh = new THREE.Mesh(geometry, agentMaterial);
+	mesh.visible = false
+	mesh.userData.color = color
 
 	function dispose(a) {
 		// geometry.getAttribute("position").remove()
@@ -801,8 +806,7 @@ function updateCreatures() {
 		quaternion.copy(agent.mesh.quaternion)
 		mat.compose(position, quaternion, scale)
 		creatures.setMatrixAt(i, mat)
-
-		//creatures.setColorAt(i, color)
+		creatures.setColorAt(i, agent.mesh.userData.color)
 	}
 	creatures.instanceMatrix.needsUpdate = true;
 	//creatures.instanceColor.needsUpdate = true;
