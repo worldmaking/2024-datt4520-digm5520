@@ -538,8 +538,8 @@ const clock = new THREE.Clock();
 // const gridHelper = new THREE.GridHelper(10, 10);
 // scene.add(gridHelper);
 
-const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-scene.add(light);
+// const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
+// scene.add(light);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 scene.add(directionalLight);
