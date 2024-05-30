@@ -140,6 +140,10 @@ wss.on("connection", function (client, request) {
           }
           break;
         case "login":
+			// create random username if no username was given
+			if (!msg.username) msg.username = uuidv4()
+			
+			console.log(msg)
           handleLogin(
             msg,
             client,
