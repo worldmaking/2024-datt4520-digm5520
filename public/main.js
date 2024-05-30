@@ -111,6 +111,9 @@ const onKeyDown = (e) => {
 			Alt = true;
 			break;
 	}
+
+		// Call the function to test the walking sound effect
+		Oscillator();
 };
 
 //If key is not pressed
@@ -140,6 +143,8 @@ const onKeyUp = (e) => {
 			Alt = false;
 			break;
 	}
+		//Stop the sound;
+		sOscillator();
 };
 
 let touchstartY = 0;
@@ -363,6 +368,8 @@ function onPointerClick(event) {
 		//sphere on ground
 		let diff = newTargetPosition.clone().sub(camera.position);
 		sphereDist = diff.length();
+		//Play sound throw the ball
+		startOscillator();
 	}
 }
 const circleRadius = 0.05;
@@ -397,6 +404,31 @@ function hexToRgb(hex) {
 	let b = hex & 0xff;
 	return [r, g, b];
 }
+//Tree growing tone ----------------------------
+ Tone.Transport.stop(); //turn off the sound at the start
+        new Tone.Synth({
+        oscillator: {
+        type: "fmsquare",
+         modulationType: "sawtooth",
+         modulationIndex: 3,
+         harmonicity: 3.4
+         },
+        envelope: {
+         attack: 0.001,
+         decay: 0.1,
+         sustain: 0.1,
+         release: 0.1
+  }
+}).toMaster();
+scribble
+      .clip({
+        synth: "PolySynth",
+        pattern: "xxx___xxx___x____xxxxxx___",
+        notes: "D4 F4 D5 D4 F4 D5 E5 F5 E5 F5 E5 C5 A4"
+      })
+      .start();
+    Tone.Transport.bpm.value = 220;
+//Tree growing tone ----------------------------
 
 // Tree
 
@@ -456,6 +488,8 @@ class Tree extends THREE.Group {
 	}
 
 	grow() {
+		//Tree growing tone start-------------------------
+		Tone.Transport.start();
 		this.children.forEach((branch) => {
 			if (branch instanceof Tree) {
 				branch.grow();
@@ -804,6 +838,9 @@ function moveAgents() {
 		} else if (a.hunting === true) {
 			if (a.target.pos.distanceTo(a.pos) < a.speed + 0.05) {
 				console.log("caught!");
+				//Tree growing tone ----------------------------
+        		//when ball caught, growing music stop
+        		Tone.Transport.stop(); 
 				//What happens when the agent catches its prey
 				a.target.dead = true;
 				a.target = getRandomAgent(a);
@@ -1332,3 +1369,128 @@ async function audiosetup() {
 }
 
 audiosetup()
+
+//-----------------Interact_Sound-------------------------------
+
+//---------------throw_the_ball----------------------------
+
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioContext = new AudioContext();
+
+// Declare oscillator, gain node, and filter node globally
+let oscillator, gainNode, filterNode;
+
+// Function to create and start oscillator
+function startOscillator() {
+    // Create oscillator node
+    oscillator = audioContext.createOscillator();
+    oscillator.type = 'sine'; // Set waveform type to sine wave
+    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Set frequency to 440 Hz (A4)
+
+    // Create Gain node to control volume
+    gainNode = audioContext.createGain();
+    gainNode.gain.value = 0.5; // Set initial gain value (adjust as needed)
+
+    // Create BiquadFilterNode
+    filterNode = audioContext.createBiquadFilter();
+    filterNode.type = 'lowpass'; // Set filter type to lowpass
+    filterNode.frequency.value = 6000; // Set initial cutoff frequency (adjust as needed)
+    filterNode.Q.value = 60; // Set Q factor (adjust as needed)
+
+    // Connect oscillator to filter, then connect filter to Gain node
+    oscillator.connect(filterNode);
+    filterNode.connect(gainNode);
+
+    // Connect Gain node to the output (speakers)
+    gainNode.connect(audioContext.destination);
+
+    // Start the oscillator
+    oscillator.start();
+
+    // Play musical sequence for the ball falling
+    playFallingSequence();
+
+    // Set a timeout to stop the oscillator after it has played
+    setTimeout(stopOscillator, 500); // Adjust the time (in milliseconds) as needed
+}
+
+// Function to stop and disconnect oscillator
+function stopOscillator() {
+    // Stop the oscillator
+    oscillator.stop();
+    // Disconnect and reset Gain node
+    gainNode.disconnect();
+}
+
+// Function to play a musical sequence for the ball falling
+function playFallingSequence() {
+    const notes = [392, 349, 330]; // Example sequence of notes representing the ball falling
+    const duration = 200; // Duration of each note in milliseconds
+
+    for (let i = 0; i < notes.length; i++) {
+        setTimeout(() => {
+            oscillator.frequency.setValueAtTime(notes[i], audioContext.currentTime);
+        }, i * duration);
+    }
+}
+//-------------------- Walking effect ---------------------------
+//const AudioContext = window.AudioContext || window.webkitAudioContext;
+//const audioContext = new AudioContext();
+
+// Declare oscillator, gain node, and filter node globally
+//let oscillator, gainNode, filterNode;
+
+// Function to create and start oscillator
+function Oscillator() {
+    // Create oscillator node
+    oscillator = audioContext.createOscillator();
+    oscillator.type = 'square'; // Set waveform type to square wave for a more percussive sound
+
+    // Create Gain node to control volume
+    gainNode = audioContext.createGain();
+    gainNode.gain.value = 0; // Start with gain at 0
+
+    // Create BiquadFilterNode
+    filterNode = audioContext.createBiquadFilter();
+    filterNode.type = 'lowpass'; // Set filter type to lowpass
+    filterNode.frequency.value = 200; // Set cutoff frequency for a deeper sound
+    filterNode.Q.value = 2; // Set Q factor
+
+    // Connect oscillator to filter, then connect filter to Gain node
+    oscillator.connect(filterNode);
+    filterNode.connect(gainNode);
+
+    // Connect Gain node to the output (speakers)
+    gainNode.connect(audioContext.destination);
+
+    // Start the oscillator
+    oscillator.start();
+
+    // Play walking sequence
+    playWalkingSequence();
+
+    // Set a timeout to stop the oscillator after it has played
+    setTimeout(sOscillator, 2000); // Adjust the time (in milliseconds) as needed
+}
+
+// Function to stop and disconnect oscillator
+function sOscillator() {
+    // Stop the oscillator
+    oscillator.stop();
+    // Disconnect and reset Gain node
+    gainNode.disconnect();
+}
+
+// Function to play a walking sound sequence
+function playWalkingSequence() {
+    const steps = 3; // Number of steps in the sequence
+    const stepInterval = 1000; // Time between steps in milliseconds
+
+    for (let i = 0; i < steps; i++) {
+        setTimeout(() => {
+            // Create a percussive "thud" for each step
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        }, i * stepInterval);
+    }
+}
