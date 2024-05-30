@@ -975,6 +975,8 @@ function animate() {
 			let avatarGroup = avatar_meshes[i]
 			let avatar = shared.avatars[i]
 
+			if (!avatar) continue;
+
 			// hide and skip any meshes that we don't need to render:
 			// if (i >= count) {
 			// 	avatarGroup.traverse(o => o.visible = false);
