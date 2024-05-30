@@ -4,7 +4,6 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import Stats from "three/addons/libs/stats.module";
 import { XRButton } from "three/addons/webxr/XRButton.js";
-import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { Timer } from "three/addons/misc/Timer.js";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
@@ -63,7 +62,6 @@ renderer.xr.enabled = true;
 // create and add the <canvas>
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(XRButton.createButton(renderer));
-document.body.appendChild(VRButton.createButton(renderer));
 
 // make an indepenent camera for VR:
 let camera_vr = new THREE.PerspectiveCamera();
