@@ -1,0 +1,19 @@
+/* remove extra spacing around elements so we can fill the available page */
+      * {
+        margin: 0;
+      }
+
+      #overlay {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        z-index: 10;
+        width: 100%;
+
+        white-space: pre;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        /*font-size: 1.4rem;*/
+        text-rendering: optimizeLegibility;
+        font-family: monospace;
+      }
