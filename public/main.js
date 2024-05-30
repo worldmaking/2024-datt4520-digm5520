@@ -9,7 +9,7 @@ import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFa
 import { Timer } from "three/addons/misc/Timer.js";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
-
+//. updated
 
 const onMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	navigator.userAgent
