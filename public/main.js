@@ -63,34 +63,6 @@ renderer.xr.enabled = true;
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(XRButton.createButton(renderer));
 
-// Add the red circle element HAOQIAN GU PART
-const redCircle = document.createElement('div');
-redCircle.id = 'redCircle';
-redCircle.style.position = 'absolute';
-redCircle.style.top = '50%';
-redCircle.style.left = '50%';
-redCircle.style.width = '50px';
-redCircle.style.height = '50px';
-redCircle.style.border = '3px solid red';
-redCircle.style.borderRadius = '50%';
-redCircle.style.transform = 'translate(-50%, -50%)';
-redCircle.style.pointerEvents = 'none';
-redCircle.style.display = 'none';
-document.body.appendChild(redCircle);
-
-// Add event listeners for the mouse down and mouse up events
-window.addEventListener('mousedown', function (event) {
-    if (event.button === 1) { // Middle mouse button
-        redCircle.style.display = 'block';
-    }
-});
-
-window.addEventListener('mouseup', function (event) {
-    if (event.button === 1) { // Middle mouse button
-        redCircle.style.display = 'none';
-    }
-});
-
 // make an indepenent camera for VR:
 let camera_vr = new THREE.PerspectiveCamera();
 
@@ -119,20 +91,6 @@ window.addEventListener("resize", function () {
 	// bugfix: don't resize renderer if in VR
 	if (!renderer.xr.isPresenting)
 		renderer.setSize(window.innerWidth, window.innerHeight);
-
-	
-});
-
-//To add camera zoom in and out fun_  HAOQIAN GU Part
-window.addEventListener("wheel", function (event) {
-    // Adjust the field of view based on the wheel delta
-    camera.fov += event.deltaY * 0.05;
-
-    // Clamp the FOV to a range (e.g., between 20 and 100)
-    camera.fov = THREE.MathUtils.clamp(camera.fov, 20, 100);
-
-    // Update the camera projection matrix to apply the changes
-    camera.updateProjectionMatrix();
 });
 
 //added/////////////////////////////////////////////////////////////////////////////////////////////
@@ -466,10 +424,6 @@ function moveSphere(newTargetPosition) {
 function onPointerClick(event) {
 	const intersects = raycaster.intersectObjects(raycastingObjects);
 
-	clickToMoveSphere(intersects)
-}
-
-function clickToMoveSphere(intersects) {
 	if (intersects.length > 0) {
 		let newTargetPosition = intersects[0].point;
 		newTargetPosition.y += 0.1;
@@ -480,7 +434,6 @@ function clickToMoveSphere(intersects) {
 		sphereDist = diff.length();
 	}
 }
-
 const circleRadius = 0.05;
 const circleSegments = 32;
 const circleGeometry = new THREE.SphereGeometry(circleRadius, circleSegments);
@@ -703,8 +656,8 @@ class Tree extends THREE.Group {
 const controllerModelFactory = new XRControllerModelFactory();
 
 // getting 2 controllers:
-let controller1 = renderer.xr.getController(0);
-scene.add(controller1);
+let controller = renderer.xr.getController(0);
+scene.add(controller);
 
 let controller2 = renderer.xr.getController(1);
 scene.add(controller2);
@@ -725,12 +678,12 @@ scene.add(controllerGrip2);
 raycaster.setFromXRController(controller2);
 
 // adding event handlers for the controllers:
-controller1.addEventListener("selectstart", function (event) {
+controller.addEventListener("selectstart", function (event) {
 	const controller = event.target;
 	// do a ray intersection:
 	getIntersections(controller);
 });
-controller1.addEventListener("selectend", function (event) {
+controller.addEventListener("selectend", function (event) {
 	const controller = event.target;
 	// etc.
 });
@@ -751,16 +704,12 @@ function getIntersections(controller) {
 	raycaster.setFromXRController(controller);
 	let intersections = raycaster.intersectObjects(scene.children);
 	// etc.
-
-	//const intersects = raycaster.intersectObjects(raycastingObjects);
-
-	clickToMoveSphere(intersections)
 }
 
 // events for getting/losing controllers:
 // adding controller models:
-controller1.addEventListener("connected", function (event) { });
-controller1.addEventListener("disconnected", function () { });
+controller.addEventListener("connected", function (event) { });
+controller.addEventListener("disconnected", function () { });
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1219,15 +1168,6 @@ function animate() {
 	);
 	avatarGroup.rotation.copy(camera.rotation);
 
-	// are we in VR?
-	if (renderer.xr.isPresenting) {
-		controller1.updateMatrixWorld( true );
-		controller2.updateMatrixWorld( true );
-		leftHand.position.set(0, 0, 0)
-		controller2.add(leftHand)
-		//controller1.add(rightHand)
-	}
-
 	if (sphereOnHand) {
 		pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		firstTree = true;
@@ -1322,10 +1262,8 @@ function animate() {
 				pos: avatarGroup.position.toArray(),
 				dir: avatarGroup.quaternion.toArray(),
 			},
-			// hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
-			// hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
-			hand1: leftHand.position.toArray(),
-			hand2: rightHand.position.toArray(),
+			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
+			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
 			lightball:  pointLight1.position.toArray(),
 			color: ghostMaterial.color.getHex(),
 			handcolor: handMaterial.color.getHex(),
