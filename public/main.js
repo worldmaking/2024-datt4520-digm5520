@@ -504,9 +504,10 @@ const controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(
 	controllerModelFactory.createControllerModel(controllerGrip2)
 );
+scene.add(controllerGrip);
 scene.add(controllerGrip2);
 
-//raycaster.setFromXRController(controller);
+raycaster.setFromXRController(controller2);
 
 // adding event handlers for the controllers:
 controller.addEventListener("selectstart", function (event) {
