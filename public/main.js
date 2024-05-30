@@ -54,8 +54,11 @@ const camera = new THREE.PerspectiveCamera(
 // the X axis points to the right
 // the Y axis points up from the ground
 // the Z axis point out of the screen toward you
-camera.position.y = 0.7; // average human eye height is about 1.5m above ground
-camera.position.z = 5; // let's stand 2 meters back
+camera.position.x = Math.random()*8 - 4
+camera.position.y = 0.8; // average human eye height is about 1.5m above ground
+camera.position.z = Math.random()*8; // let's stand 2 meters back
+
+console.log(camera.layers)
 
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
@@ -248,9 +251,9 @@ function makeAvatarGroup() {
 	tempAvatar.add(rightHand);
 	tempAvatar.scale.set(0.3, 0.3, 0.3);
 	tempAvatar.position.set(
-		camera.position.x,
-		camera.position.y,
-		camera.position.z + 0.7
+		Math.random()*8 - 4,
+		0.8,
+		Math.random()*8
 	);
 
 	return tempAvatar;
@@ -504,9 +507,10 @@ const controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(
 	controllerModelFactory.createControllerModel(controllerGrip2)
 );
+scene.add(controllerGrip);
 scene.add(controllerGrip2);
 
-//raycaster.setFromXRController(controller);
+raycaster.setFromXRController(controller2);
 
 // adding event handlers for the controllers:
 controller.addEventListener("selectstart", function (event) {
@@ -966,33 +970,41 @@ function animate() {
 
 	// update appearance of avatars:
 	{
+		console.log(shared.avatars)
+		
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-			let mesh = avatar_meshes[i]
+			let avatarGroup = avatar_meshes[i]
 			let avatar = shared.avatars[i]
 
 			// hide and skip any meshes that we don't need to render:
-			if (i >= count) {
-				mesh.visible = false;
-				continue;
+			if (!avatar) {
+				avatarGroup.traverse(o => o.visible = false);
+			 	continue;
 			}
 
-			// don't render our own avatar
+			// // don't render our own avatar
 			if (avatar.uuid == uuid) {
-				mesh.visible = false;
+				avatarGroup.traverse(o => o.visible = false);
 				continue;
 			}
 
-			mesh.visible = true;
+			// show it:
+			avatarGroup.traverse(o => o.visible = true);
 
 			// udpate pose:
-			mesh.position.fromArray(avatar.head.pos)
-			mesh.quaternion.fromArray(avatar.head.dir)
-			mesh.updateMatrix();
+			if (avatar && avatar.head) {
+				avatarGroup.position.fromArray(avatar.head.pos)
+				avatarGroup.quaternion.fromArray(avatar.head.dir)
+				avatarGroup.updateMatrix();
+			}
 
 			// update color:
-			mesh.material.color.setHex(avatar.color)
-			mesh.material.needsUpdate = true
+			let head = avatarGroup.getObjectByName("avatarHead")
+			if (head && avatar.color) {
+				head.material.color.setHex(avatar.color)
+				head.material.needsUpdate = true
+			}
 		}
 
 		// let color = new THREE.Color()
@@ -1025,8 +1037,10 @@ function animate() {
 			type: "avatar",
 			uuid,
 			head: {
-				pos: avatarGroup.getObjectByName("ghostHead").position.toArray(),
-				dir: avatarGroup.getObjectByName("ghostHead").quaternion.toArray(),
+				// pos: avatarGroup.getObjectByName("avatarHead").position.toArray(),
+				// dir: avatarGroup.getObjectByName("avatarHead").quaternion.toArray(),
+				pos: avatarGroup.position.toArray(),
+				dir: avatarGroup.quaternion.toArray(),
 			},
 			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
 			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
@@ -1119,7 +1133,7 @@ let avatarNav = {
 	color: new THREE.Color(),
 	pos: new THREE.Vector3(
 		Math.random() * 4 - 2,
-		1.5,
+		0.8,
 		Math.random() * 4 - 2
 	),
 	dir: new THREE.Quaternion(),
