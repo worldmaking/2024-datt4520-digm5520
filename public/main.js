@@ -976,16 +976,16 @@ function animate() {
 			let avatar = shared.avatars[i]
 
 			// hide and skip any meshes that we don't need to render:
-			if (i >= count) {
-				avatarGroup.traverse(o => o.visible = false);
-				continue;
-			}
+			// if (i >= count) {
+			// 	avatarGroup.traverse(o => o.visible = false);
+			// 	continue;
+			// }
 
-			// don't render our own avatar
-			if (avatar.uuid == uuid) {
-				avatarGroup.traverse(o => o.visible = false);
-				continue;
-			}
+			// // don't render our own avatar
+			// if (avatar.uuid == uuid) {
+			// 	avatarGroup.traverse(o => o.visible = false);
+			// 	continue;
+			// }
 
 			avatarGroup.traverse(o => o.visible = false);
 
