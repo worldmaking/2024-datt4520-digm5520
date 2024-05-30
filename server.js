@@ -142,7 +142,11 @@ wss.on("connection", function (client, request) {
         case "login":
 			// create random username if no username was given
 			if (!msg.username) msg.username = uuidv4()
-			
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
 			console.log(msg)
           handleLogin(
             msg,
@@ -182,9 +186,9 @@ wss.on("connection", function (client, request) {
 function updateAllClients() {
   // remove stale avatars:
   let t = process.uptime();
-  // shared.avatars = shared.avatars.filter(
-  //   (a) => t - a.last_message_time < client_timeout_seconds,
-  // );
+  shared.avatars = shared.avatars.filter(
+    (a) => t - a.last_message_time < client_timeout_seconds,
+  );
 
   // send all avatar data:
   {
