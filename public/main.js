@@ -55,7 +55,7 @@ const camera = new THREE.PerspectiveCamera(
 // the Y axis points up from the ground
 // the Z axis point out of the screen toward you
 camera.position.x = Math.random()*8 - 4
-camera.position.y = 1.5; // average human eye height is about 1.5m above ground
+camera.position.y = 0.8; // average human eye height is about 1.5m above ground
 camera.position.z = Math.random()*8; // let's stand 2 meters back
 
 console.log(camera.layers)
@@ -252,7 +252,7 @@ function makeAvatarGroup() {
 	tempAvatar.scale.set(0.3, 0.3, 0.3);
 	tempAvatar.position.set(
 		Math.random()*8 - 4,
-		1.5,
+		0.8,
 		Math.random()*8
 	);
 
@@ -970,18 +970,18 @@ function animate() {
 
 	// update appearance of avatars:
 	{
+		console.log(shared.avatars)
+		
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
 			let avatarGroup = avatar_meshes[i]
 			let avatar = shared.avatars[i]
 
-			if (!avatar) continue;
-
 			// hide and skip any meshes that we don't need to render:
-			// if (i >= count) {
-			// 	avatarGroup.traverse(o => o.visible = false);
-			// 	continue;
-			// }
+			if (!avatar) {
+				avatarGroup.traverse(o => o.visible = false);
+			 	continue;
+			}
 
 			// // don't render our own avatar
 			// if (avatar.uuid == uuid) {
@@ -989,7 +989,8 @@ function animate() {
 			// 	continue;
 			// }
 
-			avatarGroup.traverse(o => o.visible = false);
+			// show it:
+			avatarGroup.traverse(o => o.visible = true);
 
 			// udpate pose:
 			if (avatar && avatar.head) {
@@ -1130,7 +1131,7 @@ let avatarNav = {
 	color: new THREE.Color(),
 	pos: new THREE.Vector3(
 		Math.random() * 4 - 2,
-		1.5,
+		0.8,
 		Math.random() * 4 - 2
 	),
 	dir: new THREE.Quaternion(),
