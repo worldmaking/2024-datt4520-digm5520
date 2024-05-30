@@ -264,6 +264,8 @@ const plane_mat = new THREE.MeshStandardMaterial({
 const plane = new THREE.Mesh(plane_geo, plane_mat);
 plane.rotateX(Math.PI / 2);
 scene.add(plane);
+
+
 raycastingObjects.push(plane);
 let grid = new THREE.GridHelper(10, 10);
 // scene.add(grid);
@@ -284,6 +286,48 @@ const pointLight1 = new THREE.PointLight(sphereColor, 1);
 pointLight1.position.copy(camera.position.clone().add(sphere1Pos));
 pointLight1.add(sphere1);
 scene.add(pointLight1);
+
+
+// Seagrass setup:
+const seagrassGeometry = new THREE.CylinderGeometry(0.01, 0.02, 1.5, 3);
+const seagrassMaterial = new THREE.MeshStandardMaterial({ color: 'green',   emissive:0x00FF00,  emissiveIntensity: 0.5});
+
+// setting seagrass-----------------------------
+const numSeagrass = 200;
+const seagrassInstances = new THREE.InstancedMesh(seagrassGeometry, seagrassMaterial, numSeagrass);
+for (let i = 0; i < numSeagrass; i++) {
+  const position = new THREE.Vector3(
+    (Math.random() - 0.5) * 10, 0.75,(Math.random() - 0.5) * 10 );
+
+  const quaternion = new THREE.Quaternion();
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * Math.PI * 2);
+
+  const scale = new THREE.Vector3(1, 1, 1);
+
+  const matrix = new THREE.Matrix4().compose(position, quaternion, scale);
+  seagrassInstances.setMatrixAt(i, matrix);
+}
+scene.add(seagrassInstances);
+
+//---------------------------------
+// bubble
+const bubbleGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.7 });
+
+const bubbles = [];
+function createBubble() {
+    const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+    bubble.position.set(
+        (Math.random() - 0.5) * 10,
+        0,
+        (Math.random() - 0.5) * 10
+    );
+    bubble.scale.setScalar(Math.random() * 0.5 + 0.1);
+    bubble.speed = Math.random() * 0.02 + 0.01;
+    bubbles.push(bubble);
+    scene.add(bubble);
+}
+//---------------------------
 
 const raycaster = new THREE.Raycaster();
 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
@@ -901,7 +945,21 @@ function animate() {
 		controls.moveForward(-vel.z * delta);
 		controls.moveRight(-vel.x * delta);
 	}
+//--------
+   // bubble location
+    bubbles.forEach(bubble => {
+        bubble.position.y += bubble.speed;
+        if (bubble.position.y > 5) {
+            scene.remove(bubble);
+            bubbles.splice(bubbles.indexOf(bubble), 1);
+        }
+    });
 
+    // random bubble
+    if (Math.random() < 0.05) {
+        createBubble();
+    }
+  //---------
 	//get sphere distance from camera
 	let sphereDiff = pointLight1.position.clone().sub(camera.position);
 	if (sphereDiff.length() - sphereDist > 2) {
