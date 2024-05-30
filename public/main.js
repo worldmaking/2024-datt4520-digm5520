@@ -54,8 +54,11 @@ const camera = new THREE.PerspectiveCamera(
 // the X axis points to the right
 // the Y axis points up from the ground
 // the Z axis point out of the screen toward you
-camera.position.y = 0.7; // average human eye height is about 1.5m above ground
-camera.position.z = 5; // let's stand 2 meters back
+camera.position.x = Math.random()*8 - 4
+camera.position.y = 0.8; // average human eye height is about 1.5m above ground
+camera.position.z = Math.random()*8; // let's stand 2 meters back
+
+console.log(camera.layers)
 
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
@@ -202,56 +205,65 @@ if (onMobile == true) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Create ghost head with reflective material
-const ghostGeometry = new THREE.SphereGeometry(2, 16, 16);
-const ghostMaterial = new THREE.MeshStandardMaterial({
-	color: "#99ccff",
-	roughness: 0.2,
-	metalness: 0.5
-});
-const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
-ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
+//const avatarGroupe;
+function makeAvatarGroup() {
+	const ghostGeometry = new THREE.SphereGeometry(2, 16, 16);
+	const ghostMaterial = new THREE.MeshStandardMaterial({
+		color: "#99ccff",
+		roughness: 0.2,
+		metalness: 0.5
+	});
+	const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
+	ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
+	ghostHead.name = "avatarHead";
 
-// // Create eyes
-const eyeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+	// // Create eyes
+	const eyeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+	const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
-const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-leftEye.position.set(-0.5, 0, -1.8);
-//ghostHead.add(leftEye);
+	const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+	leftEye.position.set(-0.5, 0, -1.8);
 
-const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-rightEye.position.set(0.5, 0, -1.8);
-//ghostHead.add(rightEye);
+	const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+	rightEye.position.set(0.5, 0, -1.8);
 
-// Create hands with reflective material
-const handGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-const handMaterial = new THREE.MeshStandardMaterial({
-	color: "#99ccff",
-	roughness: 0.2,
-	metalness: 0.5
-});
+	// Create hands with reflective material
+	const handGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+	const handMaterial = new THREE.MeshStandardMaterial({
+		color: "#99ccff",
+		roughness: 0.2,
+		metalness: 0.5
+	});
 
-const leftHand = new THREE.Mesh(handGeometry, handMaterial);
-leftHand.position.set(-1, -1, -3.5);
-//ghostHead.add(leftHand);
+	const leftHand = new THREE.Mesh(handGeometry, handMaterial);
+	leftHand.position.set(-1, -1, -3.5);
+	leftHand.name = "leftHand";
 
-const rightHand = new THREE.Mesh(handGeometry, handMaterial);
-rightHand.position.set(1, -1, -3.5);
-//ghostHead.add(rightHand);
+	const rightHand = new THREE.Mesh(handGeometry, handMaterial);
+	rightHand.position.set(1, -1, -3.5);
+	rightHand.name = "rightHand";
 
-const avatarGroup = new THREE.Group();
-avatarGroup.add(ghostHead);
-avatarGroup.add(leftEye);
-avatarGroup.add(rightEye);
-avatarGroup.add(leftHand);
-avatarGroup.add(rightHand);
-avatarGroup.scale.set(0.3, 0.3, 0.3);
-avatarGroup.position.set(
-	camera.position.x,
-	camera.position.y,
-	camera.position.z + 0.7
-);
+	const tempAvatar = new THREE.Group();
+	tempAvatar.add(ghostHead);
+	tempAvatar.add(leftEye);
+	tempAvatar.add(rightEye);
+	tempAvatar.add(leftHand);
+	tempAvatar.add(rightHand);
+	tempAvatar.scale.set(0.3, 0.3, 0.3);
+	tempAvatar.position.set(
+		Math.random()*8 - 4,
+		0.8,
+		Math.random()*8
+	);
+
+	return tempAvatar;
+}
+
+const avatarGroup = makeAvatarGroup();
+
 scene.add(avatarGroup);
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 const sphereColor = 0xf7e09a;
 const planeColor = 0x4d4f4f;
@@ -281,11 +293,12 @@ const sphere1_mat = new THREE.MeshStandardMaterial({
 });
 const sphere1 = new THREE.Mesh(sphere1_geo, sphere1_mat);
 
-let sphere1Pos = new THREE.Vector3(0, -0.3, -0.5);
+let sphere1Pos = new THREE.Vector3(-1, 0.1, -0.5);
 const pointLight1 = new THREE.PointLight(sphereColor, 1);
-pointLight1.position.copy(camera.position.clone().add(sphere1Pos));
+pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 pointLight1.add(sphere1);
 scene.add(pointLight1);
+console.log(avatarGroup.getObjectByName("rightHand").worldToLocal(new THREE.Vector3(0, 0, 0)));
 
 
 // Seagrass setup:
@@ -538,9 +551,10 @@ const controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(
 	controllerModelFactory.createControllerModel(controllerGrip2)
 );
+scene.add(controllerGrip);
 scene.add(controllerGrip2);
 
-raycaster.setFromXRController(controller);
+raycaster.setFromXRController(controller2);
 
 // adding event handlers for the controllers:
 controller.addEventListener("selectstart", function (event) {
@@ -592,13 +606,14 @@ scene.add(directionalLight);
 
 const MAX_NUM_AVATARS = 100
 let avatar_meshes = []
-const avatar_geometry = new THREE.BoxGeometry(0.4, 0.4, 0.1);
+//const avatar_geometry = new THREE.BoxGeometry(0.4, 0.4, 0.1);
 for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-	let avatar_material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-	let avatar_mesh = new THREE.Mesh(avatar_geometry, avatar_material);
-	scene.add(avatar_mesh);
+	//let avatar_material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+	//let avatar_mesh = new THREE.Mesh(avatar_geometry, avatar_material);
+	let userAvatar = makeAvatarGroup();
+	scene.add(userAvatar);
 
-	avatar_meshes[i] = avatar_mesh
+	avatar_meshes[i] = userAvatar
 }
 
 // this is the shared state sent to all clients:
@@ -884,7 +899,7 @@ function animate() {
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	const timestamp = t
-	const delta = dt 
+	const delta = dt
 
 	if (!onMobile) {
 		dir.z = Number(Forward) - Number(Backward);
@@ -969,13 +984,7 @@ function animate() {
 		controls.getDirection(forward);
 		forward.normalize();
 		let right = forward.clone().cross(camera.up).normalize();
-		moveSphere(
-			camera.position
-				.clone()
-				.add(camera.up.clone().multiplyScalar(sphere1Pos.y))
-				.add(right.multiplyScalar(sphere1Pos.x))
-				.add(forward.multiplyScalar(-sphere1Pos.z))
-		);
+		moveSphere(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		comeback = true;
 	}
 	if (comeback) {
@@ -984,11 +993,7 @@ function animate() {
 		controls.getDirection(forward);
 		forward.normalize();
 		let right = forward.clone().cross(camera.up).normalize();
-		targetPosition = camera.position
-			.clone()
-			.add(camera.up.clone().multiplyScalar(sphere1Pos.y))
-			.add(right.multiplyScalar(sphere1Pos.x))
-			.add(forward.multiplyScalar(-sphere1Pos.z));
+		targetPosition = avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone());
 	}
 
 	// update the picking ray with the camera and eye position
@@ -1040,14 +1045,7 @@ function animate() {
 	avatarGroup.rotation.copy(camera.rotation);
 
 	if (sphereOnHand) {
-
-		pointLight1.position.copy(
-			camera.position
-				.clone()
-				.add(camera.up.clone().multiplyScalar(sphere1Pos.y))
-				.add(right.clone().multiplyScalar(sphere1Pos.x))
-				.add(forward.clone().multiplyScalar(-sphere1Pos.z))
-		);
+		pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		firstTree = true;
 	}
 
@@ -1063,33 +1061,41 @@ function animate() {
 
 	// update appearance of avatars:
 	{
+		console.log(shared.avatars)
+		
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-			let mesh = avatar_meshes[i]
+			let avatarGroup = avatar_meshes[i]
 			let avatar = shared.avatars[i]
 
 			// hide and skip any meshes that we don't need to render:
-			if (i >= count) {
-				mesh.visible = false;
-				continue;
+			if (!avatar) {
+				avatarGroup.traverse(o => o.visible = false);
+			 	continue;
 			}
 
-			// don't render our own avatar
+			// // don't render our own avatar
 			if (avatar.uuid == uuid) {
-				mesh.visible = false;
+				avatarGroup.traverse(o => o.visible = false);
 				continue;
 			}
 
-			mesh.visible = true;
+			// show it:
+			avatarGroup.traverse(o => o.visible = true);
 
 			// udpate pose:
-			mesh.position.fromArray(avatar.head.pos)
-			mesh.quaternion.fromArray(avatar.head.dir)
-			mesh.updateMatrix();
+			if (avatar && avatar.head) {
+				avatarGroup.position.fromArray(avatar.head.pos)
+				avatarGroup.quaternion.fromArray(avatar.head.dir)
+				avatarGroup.updateMatrix();
+			}
 
 			// update color:
-			mesh.material.color.setHex(avatar.color)
-			mesh.material.needsUpdate = true
+			let head = avatarGroup.getObjectByName("avatarHead")
+			if (head && avatar.color) {
+				head.material.color.setHex(avatar.color)
+				head.material.needsUpdate = true
+			}
 		}
 
 		// let color = new THREE.Color()
@@ -1122,12 +1128,14 @@ function animate() {
 			type: "avatar",
 			uuid,
 			head: {
+				// pos: avatarGroup.getObjectByName("avatarHead").position.toArray(),
+				// dir: avatarGroup.getObjectByName("avatarHead").quaternion.toArray(),
 				pos: avatarGroup.position.toArray(),
 				dir: avatarGroup.quaternion.toArray(),
 			},
-			// hand1: [0, 0, 0],
-			// hand2:  [0, 0, 0],
-			// lightball:  [0, 0, 0],
+			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
+			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
+			lightball:  pointLight1.position.toArray(),
 			color: avatarNav.color.getHex(),
 			//shape: "sphere"
 		})
@@ -1141,6 +1149,7 @@ renderer.setAnimationLoop(animate);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 window.addEventListener("click", onPointerClick);
+window.addEventListener("selectstart", onPointerClick);
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1249,7 +1258,7 @@ let avatarNav = {
 	color: new THREE.Color(),
 	pos: new THREE.Vector3(
 		Math.random() * 4 - 2,
-		1.5,
+		0.8,
 		Math.random() * 4 - 2
 	),
 	dir: new THREE.Quaternion(),
