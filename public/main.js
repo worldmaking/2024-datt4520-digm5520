@@ -20,6 +20,22 @@ const raycastingObjects = [];
 
 const scene = new THREE.Scene();
 
+//----------------
+const ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0x00ffff, 1, 100);
+pointLight.position.set(5, 5, 5);
+scene.add(pointLight);
+//---------------
+
+const groundGeometry = new THREE.PlaneGeometry(10, 10);
+const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x004d00 });
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+//---------------
 const overlay = document.getElementById("overlay")
 
 let uuid = ""
@@ -266,24 +282,23 @@ scene.add(avatarGroup);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 const sphereColor = 0xf7e09a;
-const planeColor = 0x4d4f4f;
+//const planeColor = 0x4d4f4f;
 
-const plane_geo = new THREE.PlaneGeometry(10, 10);
-const plane_mat = new THREE.MeshStandardMaterial({
-	color: planeColor,
-	side: THREE.DoubleSide
-});
-const plane = new THREE.Mesh(plane_geo, plane_mat);
-plane.rotateX(Math.PI / 2);
-scene.add(plane);
+//const plane_geo = new THREE.PlaneGeometry(10, 10);
+//const plane_mat = new THREE.MeshStandardMaterial({
+	//color: planeColor,
+	//side: THREE.DoubleSide
+//});
+//const plane = new THREE.Mesh(plane_geo, plane_mat);
+//plane.rotateX(Math.PI / 2);
+//scene.add(plane);
 
 
-raycastingObjects.push(plane);
+raycastingObjects.push(ground);
 let grid = new THREE.GridHelper(10, 10);
 // scene.add(grid);
 
-const hemlight = new THREE.HemisphereLight(0xffffff, 0x080820, 1);
-scene.add(hemlight);
+
 
 const sphere1_geo = new THREE.SphereGeometry(0.1, 32, 16);
 const sphere1_mat = new THREE.MeshStandardMaterial({
@@ -1062,7 +1077,7 @@ function animate() {
 	// update appearance of avatars:
 	{
 		console.log(shared.avatars)
-		
+
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
 			let avatarGroup = avatar_meshes[i]
@@ -1166,7 +1181,7 @@ socket.binaryType = 'arraybuffer';
 
 // let's know when it works:
 socket.onopen = function () {
-	// or document.write("websocket connected to "+addr); 
+	// or document.write("websocket connected to "+addr);
 	console.log("websocket connected to " + addr);
 }
 socket.onerror = function (err) {
