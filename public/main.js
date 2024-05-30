@@ -251,9 +251,9 @@ function makeAvatarGroup() {
 	tempAvatar.add(rightHand);
 	tempAvatar.scale.set(0.3, 0.3, 0.3);
 	tempAvatar.position.set(
-		camera.position.x,
-		camera.position.y,
-		camera.position.z + 0.7
+		Math.random()*8 - 4,
+		1.5,
+		Math.random()*8
 	);
 
 	return tempAvatar;
