@@ -1,0 +1,153 @@
+import * as THREE from "three";
+import { XRButton } from "three/addons/webxr/XRButton.js";
+import Stats from "three/addons/libs/stats.module";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const overlay = document.getElementById("overlay");
+
+// add a stats view to the page to monitor performance:
+const stats = new Stats();
+document.body.appendChild(stats.dom);
+
+const clock = new THREE.Clock();
+
+const scene = new THREE.Scene();
+
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+document.body.appendChild(XRButton.createButton(renderer));
+
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(0, 1.6, 5);
+
+
+scene.add(new THREE.HemisphereLight(0xa5a5a5, 0x898989, 3));
+
+const light = new THREE.DirectionalLight(0xffffff, 3);
+light.position.set(1, 1, 1).normalize();
+scene.add(light);
+
+const gridHelper = new THREE.GridHelper(10, 10);
+scene.add(gridHelper);
+
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  // this fixes the weird exit XR bug:
+  if (!renderer.xr.isPresenting)
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// create an AudioListener and add it to the camera
+// (this embeds the WebAudio spatialization feature of audioContext.listener)
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
+let mesh = new THREE.Mesh(
+  new THREE.BoxGeometry(),
+new THREE.MeshStandardMaterial())
+scene.add(mesh)
+let sound = new THREE.PositionalAudio(listener)
+mesh.add(sound)
+
+// get the AudioContext
+const audioContext = listener.context;
+// WebAudio requires a click to start audio:
+document.body.onclick = () => {
+  audioContext.resume();
+};
+
+// const navcontrols = new FlyControls(camera, renderer.domElement);
+// navcontrols.movementSpeed = 1;
+// navcontrols.rollSpeed = Math.PI / 3;
+const controls = new OrbitControls(camera, renderer.domElement);
+
+function animate() {
+  // monitor our FPS:
+  stats.begin();
+
+  // get current timing:
+  const dt = clock.getDelta();
+  const t = clock.getElapsedTime();
+
+  renderer.render(scene, camera);
+
+  // monitor our FPS:
+  stats.end();
+}
+
+renderer.setAnimationLoop(animate);
+
+async function audiosetup() {
+  
+  const filter = audioContext.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(800, audioContext.currentTime);
+  filter.Q.setValueAtTime(1, audioContext.currentTime);
+  
+  // score
+  let lead = [
+    "C4  q",
+    "E4  q",
+    "G4  q",
+    "C5  qd",
+    "A3  q",
+    "C4  q",
+    "E4  q",
+    "A4  q",
+    "F3  q",
+    "A3  q",
+    "C4  q",
+    "F4  q",
+    "G3  q",
+    "B3  q",
+    "D4  q",
+    "G4  qd",
+    
+    
+
+];
+
+  let tempo = 60;
+  let sequence1 = new Sequence(audioContext, tempo, lead);
+  
+  
+
+  sequence1.staccato = 0.55;
+
+  //sequence1.mid.frequency.value = 800;
+  //sequence1.mid.gain.value = 3;
+  
+  console.log(sequence1.input)
+
+  sequence1.play(audioContext.currentTime);
+  sound.setNodeSource(sequence1.output)
+  
+   function modulateFilter() {
+    const now = audioContext.currentTime;
+    const randomFactor = Math.random() * 100;
+     let filter = sequence1.filter
+    filter.frequency.setValueAtTime(300 + randomFactor, now);
+    filter.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+    filter.frequency.exponentialRampToValueAtTime(100, now + 1);
+     
+  // Add random modulation to the Q factor for more blur effect
+    filter.Q.setValueAtTime(1 + Math.random() * 100, now);
+  }
+
+  // Set up a modulation loop
+  //setInterval(modulateFilter, 5000);
+
+}
+
+audiosetup();
