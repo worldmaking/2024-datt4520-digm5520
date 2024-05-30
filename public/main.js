@@ -984,10 +984,10 @@ function animate() {
 			}
 
 			// // don't render our own avatar
-			// if (avatar.uuid == uuid) {
-			// 	avatarGroup.traverse(o => o.visible = false);
-			// 	continue;
-			// }
+			if (avatar.uuid == uuid) {
+				avatarGroup.traverse(o => o.visible = false);
+				continue;
+			}
 
 			// show it:
 			avatarGroup.traverse(o => o.visible = true);
