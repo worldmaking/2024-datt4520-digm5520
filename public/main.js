@@ -54,8 +54,9 @@ const camera = new THREE.PerspectiveCamera(
 // the X axis points to the right
 // the Y axis points up from the ground
 // the Z axis point out of the screen toward you
-camera.position.y = 0.7; // average human eye height is about 1.5m above ground
-camera.position.z = 5; // let's stand 2 meters back
+camera.position.x = Math.random()*8 - 4
+camera.position.y = 1.5; // average human eye height is about 1.5m above ground
+camera.position.z = Math.random()*8; // let's stand 2 meters back
 
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
