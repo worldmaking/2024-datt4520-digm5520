@@ -1223,6 +1223,7 @@ function animate() {
 	if (renderer.xr.isPresenting) {
 		controller1.updateMatrixWorld( true );
 		controller2.updateMatrixWorld( true );
+		leftHand.position.set(0, 0, 0)
 		controller2.add(leftHand)
 		//controller1.add(rightHand)
 	}
