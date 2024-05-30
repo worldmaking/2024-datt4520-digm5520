@@ -992,19 +992,19 @@ function animate() {
 			// show it:
 			avatarGroup.traverse(o => o.visible = true);
 
-			// // udpate pose:
-			// if (avatar && avatar.head) {
-			// 	avatarGroup.position.fromArray(avatar.head.pos)
-			// 	avatarGroup.quaternion.fromArray(avatar.head.dir)
-			// 	avatarGroup.updateMatrix();
-			// }
+			// udpate pose:
+			if (avatar && avatar.head) {
+				avatarGroup.position.fromArray(avatar.head.pos)
+				avatarGroup.quaternion.fromArray(avatar.head.dir)
+				avatarGroup.updateMatrix();
+			}
 
-			// // update color:
-			// let head = avatarGroup.getObjectByName("avatarHead")
-			// if (head && avatar.color) {
-			// 	head.material.color.setHex(avatar.color)
-			// 	head.material.needsUpdate = true
-			// }
+			// update color:
+			let head = avatarGroup.getObjectByName("avatarHead")
+			if (head && avatar.color) {
+				head.material.color.setHex(avatar.color)
+				head.material.needsUpdate = true
+			}
 		}
 
 		// let color = new THREE.Color()
