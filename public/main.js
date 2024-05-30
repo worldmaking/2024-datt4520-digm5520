@@ -969,31 +969,34 @@ function animate() {
 	{
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
-			let mesh = avatar_meshes[i]
+			let avatarGroup = avatar_meshes[i]
 			let avatar = shared.avatars[i]
 
 			// hide and skip any meshes that we don't need to render:
 			if (i >= count) {
-				mesh.visible = false;
+				avatarGroup.visible = false;
 				continue;
 			}
 
 			// don't render our own avatar
 			if (avatar.uuid == uuid) {
-				mesh.visible = false;
+				avatarGroup.visible = false;
 				continue;
 			}
 
-			mesh.visible = true;
+			avatarGroup.visible = true;
 
 			// udpate pose:
-			mesh.position.fromArray(avatar.head.pos)
-			mesh.quaternion.fromArray(avatar.head.dir)
-			mesh.updateMatrix();
+			avatarGroup.position.fromArray(avatar.head.pos)
+			avatarGroup.quaternion.fromArray(avatar.head.dir)
+			avatarGroup.updateMatrix();
 
 			// update color:
-			mesh.material.color.setHex(avatar.color)
-			mesh.material.needsUpdate = true
+			let head = avatarGroup.getObjectByName("avatarHead")
+			if (head) {
+				head.material.color.setHex(avatar.color)
+				head.material.needsUpdate = true
+			}
 		}
 
 		// let color = new THREE.Color()
