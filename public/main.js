@@ -323,29 +323,38 @@ const seaweedMaterial = new THREE.ShaderMaterial({
     vertexShader: `
         uniform float time;
         varying vec2 vUv;
+		varying vec3 vNormal;
         void main() {
             vUv = uv;
+			vNormal = normal;
+
             vec3 pos = position;
-            float angle = pos.y * 0.5 + time * 5.0;
-            pos.x += sin(angle) * 0.5;
-            pos.z += cos(angle) * 0.3;
+            float angle = pos.y * 3.0 + time * 1.0;
+
+            pos.x += sin(angle) * 0.15 * pos.y;
+            pos.z += cos(angle) * 0.13 * pos.y;
+
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
     `,
     fragmentShader: `
+		varying vec3 vNormal;
         void main() {
-            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			vec3 normal = normalize(vNormal);
+            gl_FragColor = vec4(vec3(0.0, 0.3, 0.0) + normal*0.25, 1.0);
         }
     `
 });
 
 const seaweeds = [];
 function createSeaweed() {
-    const geometry = new THREE.PlaneGeometry(0.1, 2, 1, 10);
+    //const geometry = new THREE.PlaneGeometry(0.1, 2, 1, 10).translate(0, 1, 0);
+	let h = 1+Math.random()
+	const geometry = new THREE.CylinderGeometry(0.05, 0.025, h, 5, 30).translate(0, h/2, 0);
     const seaweed = new THREE.Mesh(geometry, seaweedMaterial);
     seaweed.position.set(
         (Math.random() - 0.5) * 10,
-        1,
+        0,
         (Math.random() - 0.5) * 10
     );
     seaweed.rotation.y = Math.random() * Math.PI * 2;
