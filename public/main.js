@@ -83,8 +83,6 @@ camera.position.x = Math.random()*8 - 4
 camera.position.y = 0.8; // average human eye height is about 1.5m above ground
 camera.position.z = Math.random()*8; // let's stand 2 meters back
 
-console.log(camera.layers)
-
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 
@@ -205,7 +203,7 @@ if (onMobile == true) {
 	//Right joystick to look around
 	joystickR.on("move", function (evt, data) {
 		// DO EVERYTHING
-		console.log(evt, data);
+		//console.log(evt, data);
 		nav.lookx = data.vector.y;
 		nav.looky = -data.vector.x;
 	});
@@ -1320,9 +1318,12 @@ socket.onmessage = function (msg) {
 		let json = JSON.parse(msg.data)
 		// handle different message types:
 		switch (json.type) {
-			case "uuid": {
-				// set our local ID:
-				uuid = json.uuid
+			case 'login-success': {
+				uuid = json.uuid;
+				const loginForm = document.getElementById("loginForm")
+				if (loginForm) {
+					loginForm.style.display = "none"
+				}
 			} break;
 			case "avatars": {
 				// iterate over json.avatars to update all our avatars
@@ -1356,7 +1357,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const loginButton = document.getElementById("loginButton");
   if (loginButton) {
     loginButton.addEventListener("click", login);
-    //loginForm.addEventListener("submit", login);
+    loginForm.addEventListener("submit", login);
   }
 });
 
