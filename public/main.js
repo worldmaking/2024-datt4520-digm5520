@@ -424,6 +424,10 @@ function moveSphere(newTargetPosition) {
 function onPointerClick(event) {
 	const intersects = raycaster.intersectObjects(raycastingObjects);
 
+	clickToMoveSphere(intersects)
+}
+
+function clickToMoveSphere(intersects) {
 	if (intersects.length > 0) {
 		let newTargetPosition = intersects[0].point;
 		newTargetPosition.y += 0.1;
@@ -434,6 +438,7 @@ function onPointerClick(event) {
 		sphereDist = diff.length();
 	}
 }
+
 const circleRadius = 0.05;
 const circleSegments = 32;
 const circleGeometry = new THREE.SphereGeometry(circleRadius, circleSegments);
@@ -704,6 +709,10 @@ function getIntersections(controller) {
 	raycaster.setFromXRController(controller);
 	let intersections = raycaster.intersectObjects(scene.children);
 	// etc.
+
+	//const intersects = raycaster.intersectObjects(raycastingObjects);
+
+	clickToMoveSphere(intersections)
 }
 
 // events for getting/losing controllers:
@@ -1168,6 +1177,12 @@ function animate() {
 	);
 	avatarGroup.rotation.copy(camera.rotation);
 
+	// are we in VR?
+	if (renderer.xr.isPresenting) {
+		controller.add(leftHand)
+		controller2.add(rightHand)
+	}
+
 	if (sphereOnHand) {
 		pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		firstTree = true;
@@ -1262,8 +1277,10 @@ function animate() {
 				pos: avatarGroup.position.toArray(),
 				dir: avatarGroup.quaternion.toArray(),
 			},
-			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
-			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
+			// hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
+			// hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
+			hand1: leftHand.position.toArray(),
+			hand2: rightHand.position.toArray(),
 			lightball:  pointLight1.position.toArray(),
 			color: ghostMaterial.color.getHex(),
 			handcolor: handMaterial.color.getHex(),
