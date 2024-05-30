@@ -990,13 +990,15 @@ function animate() {
 			avatarGroup.traverse(o => o.visible = false);
 
 			// udpate pose:
-			avatarGroup.position.fromArray(avatar.head.pos)
-			avatarGroup.quaternion.fromArray(avatar.head.dir)
-			avatarGroup.updateMatrix();
+			if (avatar && avatar.head) {
+				avatarGroup.position.fromArray(avatar.head.pos)
+				avatarGroup.quaternion.fromArray(avatar.head.dir)
+				avatarGroup.updateMatrix();
+			}
 
 			// update color:
 			let head = avatarGroup.getObjectByName("avatarHead")
-			if (head) {
+			if (head && avatar.color) {
 				head.material.color.setHex(avatar.color)
 				head.material.needsUpdate = true
 			}
