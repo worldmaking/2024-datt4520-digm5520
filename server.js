@@ -88,6 +88,8 @@ let shared = {
   creatures: [],
 };
 
+let avatarHistory = [];
+
 try {
   const data = fs.readFileSync("shared_state.json", "utf8");
   shared = JSON.parse(data);
@@ -99,6 +101,8 @@ try {
     console.error("Failed to load state from 'shared_state.json':", error);
   }
 }
+
+avatarHistory = [...shared.avatars];
 
 let userData = {};
 
@@ -153,6 +157,20 @@ wss.on("connection", function (client, request) {
     }
   });
 
+  client.on("close", function (code, reason) {
+    console.log(shared.avatars);
+    console.log(`Client with UUID ${uuid} disconnected.)`);
+    if (uuid) {
+      const index = shared.avatars.findIndex((av) => av.uuid === uuid);
+      if (index > -1) {
+        shared.avatars.splice(index, 1);
+        console.log(
+          `Avatar with UUID ${uuid} has been removed from shared.avatars`,
+        );
+      }
+    }
+  });
+
   client.send(JSON.stringify({ type: "uuid", uuid }));
 });
 
@@ -174,6 +192,7 @@ function updateAllClients() {
       // only send avatars if they have a head position etc.
       avatars: shared.avatars.filter((a) => a.head),
     });
+    // console.log(msg);
     wss.clients.forEach((client) => {
       client.send(msg);
     });
@@ -197,7 +216,7 @@ function handleLogin(msg, client, callback) {
   const username = msg.username;
   if (userData[username]) {
     const user = userData[username];
-    const avatar = shared.avatars.find((a) => a.uuid === user.avatarUUID);
+    const avatar = avatarHistory.find((a) => a.uuid === user.avatarUUID);
     if (!avatar) {
       console.error("Avatar not found for existing user");
       return;
@@ -214,6 +233,7 @@ function handleLogin(msg, client, callback) {
     const newUser = createUser(username);
     const newAvatar = createAvatar(newUser.uuid);
     shared.avatars.push(newAvatar);
+    avatarHistory.push(newAvatar);
     client.send(
       JSON.stringify({
         type: "login-success",
@@ -261,6 +281,7 @@ function saveStateOnExit() {
   isExiting = true;
 
   try {
+    shared.avatars = avatarHistory;
     const data = JSON.stringify(shared, null, 2);
     const userdata = JSON.stringify(userData, null, 2);
     fs.writeFileSync("shared_state.json", data);
