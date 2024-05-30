@@ -74,8 +74,6 @@ camera.position.x = Math.random()*8 - 4
 camera.position.y = 0.8; // average human eye height is about 1.5m above ground
 camera.position.z = Math.random()*8; // let's stand 2 meters back
 
-console.log(camera.layers)
-
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 
@@ -196,7 +194,7 @@ if (onMobile == true) {
 	//Right joystick to look around
 	joystickR.on("move", function (evt, data) {
 		// DO EVERYTHING
-		console.log(evt, data);
+		//console.log(evt, data);
 		nav.lookx = data.vector.y;
 		nav.looky = -data.vector.x;
 	});
@@ -740,7 +738,7 @@ function getRandomAgent(self) {
 //Call this to add 1 random new agent
 function newAgent() {
 	let points = getRandomInt(0, getRandomInt(0, vertices2.length - 1));
-	console.log(points, vertices2.length);
+	//console.log(points, vertices2.length);
 	const geometry = new THREE.BufferGeometry();
 	geometry.setAttribute(
 		"position",
@@ -1076,7 +1074,6 @@ function animate() {
 
 	// update appearance of avatars:
 	{
-		console.log(shared.avatars)
 
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
@@ -1196,32 +1193,48 @@ socket.onclose = function (e) {
 }
 
 socket.onmessage = function (msg) {
-	if (msg.data.toString().substring(0, 1) == "{") {
-		// we received a JSON message; parse it:
-		let json = JSON.parse(msg.data)
-		// handle different message types:
-		switch (json.type) {
-			case "uuid": {
-				// set our local ID:
-				uuid = json.uuid
-			} break;
-			case "avatars": {
-				// iterate over json.avatars to update all our avatars
-				shared.avatars = json.avatars
-			} break;
-			case "creatures": {
-				// iterate over json.creatures to update all our creatures
-				shared.creatures = json.creatures
-			} break;
-			default: {
-				console.log("received json", json)
-			}
-		}
-
-	} else {
-		console.log("received", msg.data);
-	}
-}
+  if (msg.data.toString().substring(0, 1) == "{") {
+    // we received a JSON message; parse it:
+    let json = JSON.parse(msg.data);
+    // handle different message types:
+    switch (json.type) {
+      // case "uuid":
+      //   {
+      //     // set our local ID:
+      //     uuid = json.uuid;
+      //   }
+      //   break;
+      case "login-success":
+        {
+          uuid = json.uuid;
+          // json.avatar is the avatar data of client
+          const loginForm = document.getElementById("loginForm");
+          if (loginForm) {
+            loginForm.style.display = "none";
+          }
+          //console.log(json.avatar);
+        }
+        break;
+      case "avatars":
+        {
+          // iterate over json.avatars to update all our avatars
+          shared.avatars = json.avatars;
+        }
+        break;
+      case "creatures":
+        {
+          // iterate over json.creatures to update all our creatures
+          shared.creatures = json.creatures;
+        }
+        break;
+      default: {
+        console.log("received json", json);
+      }
+    }
+  } else {
+    console.log("received", msg.data);
+  }
+};
 
 function socket_send_message(msg) {
 	// abort if socket is not available:
@@ -1231,6 +1244,25 @@ function socket_send_message(msg) {
 
 	//console.log(msg);
 	socket.send(msg)
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const loginButton = document.getElementById("loginButton");
+  if (loginButton) {
+    loginButton.addEventListener("click", login);
+    loginForm.addEventListener("submit", login);
+  }
+});
+
+function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const message = {
+    type: "login",
+    username: username,
+    password: password,
+  };
+  socket_send_message(message);
 }
 
 ////////////////////////////////
