@@ -212,6 +212,7 @@ function makeAvatarGroup() {
 	});
 	const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
 	ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
+	ghostHead.name = "avatarHead";
 
 	// // Create eyes
 	const eyeGeometry = new THREE.SphereGeometry(0.2, 16, 16);
@@ -219,11 +220,9 @@ function makeAvatarGroup() {
 
 	const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
 	leftEye.position.set(-0.5, 0, -1.8);
-	//ghostHead.add(leftEye);
 
 	const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
 	rightEye.position.set(0.5, 0, -1.8);
-	//ghostHead.add(rightEye);
 
 	// Create hands with reflective material
 	const handGeometry = new THREE.SphereGeometry(0.5, 16, 16);
@@ -235,11 +234,11 @@ function makeAvatarGroup() {
 
 	const leftHand = new THREE.Mesh(handGeometry, handMaterial);
 	leftHand.position.set(-1, -1, -3.5);
-	//ghostHead.add(leftHand);
+	leftHand.name = "leftHand";
 
 	const rightHand = new THREE.Mesh(handGeometry, handMaterial);
 	rightHand.position.set(1, -1, -3.5);
-	//ghostHead.add(rightHand);
+	rightHand.name = "rightHand";
 
 	const tempAvatar = new THREE.Group();
 	tempAvatar.add(ghostHead);
@@ -289,11 +288,12 @@ const sphere1_mat = new THREE.MeshStandardMaterial({
 });
 const sphere1 = new THREE.Mesh(sphere1_geo, sphere1_mat);
 
-let sphere1Pos = new THREE.Vector3(0, -0.3, -0.5);
+let sphere1Pos = new THREE.Vector3(-1, 0.1, -0.5);
 const pointLight1 = new THREE.PointLight(sphereColor, 1);
-pointLight1.position.copy(camera.position.clone().add(sphere1Pos));
+pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 pointLight1.add(sphere1);
 scene.add(pointLight1);
+console.log(avatarGroup.getObjectByName("rightHand").worldToLocal(new THREE.Vector3(0, 0, 0)));
 
 const raycaster = new THREE.Raycaster();
 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
@@ -506,7 +506,7 @@ controllerGrip2.add(
 );
 scene.add(controllerGrip2);
 
-raycaster.setFromXRController(controller);
+//raycaster.setFromXRController(controller);
 
 // adding event handlers for the controllers:
 controller.addEventListener("selectstart", function (event) {
@@ -889,13 +889,7 @@ function animate() {
 		controls.getDirection(forward);
 		forward.normalize();
 		let right = forward.clone().cross(camera.up).normalize();
-		moveSphere(
-			camera.position
-				.clone()
-				.add(camera.up.clone().multiplyScalar(sphere1Pos.y))
-				.add(right.multiplyScalar(sphere1Pos.x))
-				.add(forward.multiplyScalar(-sphere1Pos.z))
-		);
+		moveSphere(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		comeback = true;
 	}
 	if (comeback) {
@@ -904,11 +898,7 @@ function animate() {
 		controls.getDirection(forward);
 		forward.normalize();
 		let right = forward.clone().cross(camera.up).normalize();
-		targetPosition = camera.position
-			.clone()
-			.add(camera.up.clone().multiplyScalar(sphere1Pos.y))
-			.add(right.multiplyScalar(sphere1Pos.x))
-			.add(forward.multiplyScalar(-sphere1Pos.z));
+		targetPosition = avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone());
 	}
 
 	// update the picking ray with the camera and eye position
@@ -960,14 +950,7 @@ function animate() {
 	avatarGroup.rotation.copy(camera.rotation);
 
 	if (sphereOnHand) {
-
-		pointLight1.position.copy(
-			camera.position
-				.clone()
-				.add(camera.up.clone().multiplyScalar(sphere1Pos.y))
-				.add(right.clone().multiplyScalar(sphere1Pos.x))
-				.add(forward.clone().multiplyScalar(-sphere1Pos.z))
-		);
+		pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		firstTree = true;
 	}
 
@@ -1042,12 +1025,12 @@ function animate() {
 			type: "avatar",
 			uuid,
 			head: {
-				pos: avatarGroup.position.toArray(),
-				dir: avatarGroup.quaternion.toArray(),
+				pos: avatarGroup.getObjectByName("ghostHead").position.toArray(),
+				dir: avatarGroup.getObjectByName("ghostHead").quaternion.toArray(),
 			},
-			// hand1: [0, 0, 0],
-			// hand2:  [0, 0, 0],
-			// lightball:  [0, 0, 0],
+			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
+			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
+			lightball:  pointLight1.position.toArray(),
 			color: avatarNav.color.getHex(),
 			//shape: "sphere"
 		})
@@ -1061,6 +1044,7 @@ renderer.setAnimationLoop(animate);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 window.addEventListener("click", onPointerClick);
+window.addEventListener("selectstart", onPointerClick);
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
