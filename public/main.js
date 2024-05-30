@@ -703,8 +703,8 @@ class Tree extends THREE.Group {
 const controllerModelFactory = new XRControllerModelFactory();
 
 // getting 2 controllers:
-let controller = renderer.xr.getController(0);
-scene.add(controller);
+let controller1 = renderer.xr.getController(0);
+scene.add(controller1);
 
 let controller2 = renderer.xr.getController(1);
 scene.add(controller2);
@@ -725,12 +725,12 @@ scene.add(controllerGrip2);
 raycaster.setFromXRController(controller2);
 
 // adding event handlers for the controllers:
-controller.addEventListener("selectstart", function (event) {
+controller1.addEventListener("selectstart", function (event) {
 	const controller = event.target;
 	// do a ray intersection:
 	getIntersections(controller);
 });
-controller.addEventListener("selectend", function (event) {
+controller1.addEventListener("selectend", function (event) {
 	const controller = event.target;
 	// etc.
 });
@@ -759,8 +759,8 @@ function getIntersections(controller) {
 
 // events for getting/losing controllers:
 // adding controller models:
-controller.addEventListener("connected", function (event) { });
-controller.addEventListener("disconnected", function () { });
+controller1.addEventListener("connected", function (event) { });
+controller1.addEventListener("disconnected", function () { });
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1221,7 +1221,9 @@ function animate() {
 
 	// are we in VR?
 	if (renderer.xr.isPresenting) {
-		// controller.add(leftHand)
+		controller1.updateMatrixWorld( true );
+		controller2.updateMatrixWorld( true );
+		// controller1.add(leftHand)
 		// controller2.add(rightHand)
 	}
 
