@@ -40,6 +40,34 @@ document.body.appendChild(renderer.domElement);
 document.body.appendChild(XRButton.createButton(renderer));
 document.body.appendChild(VRButton.createButton(renderer));
 
+// Add the red circle element HAOQIAN GU PART
+const redCircle = document.createElement('div');
+redCircle.id = 'redCircle';
+redCircle.style.position = 'absolute';
+redCircle.style.top = '50%';
+redCircle.style.left = '50%';
+redCircle.style.width = '50px';
+redCircle.style.height = '50px';
+redCircle.style.border = '3px solid red';
+redCircle.style.borderRadius = '50%';
+redCircle.style.transform = 'translate(-50%, -50%)';
+redCircle.style.pointerEvents = 'none';
+redCircle.style.display = 'none';
+document.body.appendChild(redCircle);
+
+// Add event listeners for the mouse down and mouse up events
+window.addEventListener('mousedown', function (event) {
+    if (event.button === 1) { // Middle mouse button
+        redCircle.style.display = 'block';
+    }
+});
+
+window.addEventListener('mouseup', function (event) {
+    if (event.button === 1) { // Middle mouse button
+        redCircle.style.display = 'none';
+    }
+});
+
 // make an indepenent camera for VR:
 let camera_vr = new THREE.PerspectiveCamera();
 
@@ -67,6 +95,20 @@ window.addEventListener("resize", function () {
 	// bugfix: don't resize renderer if in VR
 	if (!renderer.xr.isPresenting)
 		renderer.setSize(window.innerWidth, window.innerHeight);
+
+	
+});
+
+//To add camera zoom in and out fun_  HAOQIAN GU Part
+window.addEventListener("wheel", function (event) {
+    // Adjust the field of view based on the wheel delta
+    camera.fov += event.deltaY * 0.05;
+
+    // Clamp the FOV to a range (e.g., between 20 and 100)
+    camera.fov = THREE.MathUtils.clamp(camera.fov, 20, 100);
+
+    // Update the camera projection matrix to apply the changes
+    camera.updateProjectionMatrix();
 });
 
 //added/////////////////////////////////////////////////////////////////////////////////////////////
