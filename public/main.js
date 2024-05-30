@@ -20,6 +20,22 @@ const raycastingObjects = [];
 
 const scene = new THREE.Scene();
 
+//----------------
+const ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0x00ffff, 1, 100);
+pointLight.position.set(5, 5, 5);
+scene.add(pointLight);
+//---------------
+
+const groundGeometry = new THREE.PlaneGeometry(10, 10);
+const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x004d00 });
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+//---------------
 const overlay = document.getElementById("overlay")
 
 let uuid = ""
@@ -57,6 +73,8 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.x = Math.random()*8 - 4
 camera.position.y = 0.8; // average human eye height is about 1.5m above ground
 camera.position.z = Math.random()*8; // let's stand 2 meters back
+
+console.log(camera.layers)
 
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
@@ -178,7 +196,7 @@ if (onMobile == true) {
 	//Right joystick to look around
 	joystickR.on("move", function (evt, data) {
 		// DO EVERYTHING
-		//console.log(evt, data);
+		console.log(evt, data);
 		nav.lookx = data.vector.y;
 		nav.looky = -data.vector.x;
 	});
@@ -264,24 +282,23 @@ scene.add(avatarGroup);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 const sphereColor = 0xf7e09a;
-const planeColor = 0x4d4f4f;
+//const planeColor = 0x4d4f4f;
 
-const plane_geo = new THREE.PlaneGeometry(10, 10);
-const plane_mat = new THREE.MeshStandardMaterial({
-	color: planeColor,
-	side: THREE.DoubleSide
-});
-const plane = new THREE.Mesh(plane_geo, plane_mat);
-plane.rotateX(Math.PI / 2);
-scene.add(plane);
+//const plane_geo = new THREE.PlaneGeometry(10, 10);
+//const plane_mat = new THREE.MeshStandardMaterial({
+	//color: planeColor,
+	//side: THREE.DoubleSide
+//});
+//const plane = new THREE.Mesh(plane_geo, plane_mat);
+//plane.rotateX(Math.PI / 2);
+//scene.add(plane);
 
 
-raycastingObjects.push(plane);
+raycastingObjects.push(ground);
 let grid = new THREE.GridHelper(10, 10);
 // scene.add(grid);
 
-const hemlight = new THREE.HemisphereLight(0xffffff, 0x080820, 1);
-scene.add(hemlight);
+
 
 const sphere1_geo = new THREE.SphereGeometry(0.1, 32, 16);
 const sphere1_mat = new THREE.MeshStandardMaterial({
@@ -299,26 +316,46 @@ scene.add(pointLight1);
 console.log(avatarGroup.getObjectByName("rightHand").worldToLocal(new THREE.Vector3(0, 0, 0)));
 
 
-// Seagrass setup:
-const seagrassGeometry = new THREE.CylinderGeometry(0.01, 0.02, 1.5, 3);
-const seagrassMaterial = new THREE.MeshStandardMaterial({ color: 'green',   emissive:0x00FF00,  emissiveIntensity: 0.5});
+const seaweedMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        time: { value: 0 }
+    },
+    vertexShader: `
+        uniform float time;
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            vec3 pos = position;
+            float angle = pos.y * 0.5 + time * 5.0;
+            pos.x += sin(angle) * 0.5;
+            pos.z += cos(angle) * 0.3;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+    `,
+    fragmentShader: `
+        void main() {
+            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        }
+    `
+});
 
-// setting seagrass-----------------------------
-const numSeagrass = 200;
-const seagrassInstances = new THREE.InstancedMesh(seagrassGeometry, seagrassMaterial, numSeagrass);
-for (let i = 0; i < numSeagrass; i++) {
-  const position = new THREE.Vector3(
-    (Math.random() - 0.5) * 10, 0.75,(Math.random() - 0.5) * 10 );
-
-  const quaternion = new THREE.Quaternion();
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * Math.PI * 2);
-
-  const scale = new THREE.Vector3(1, 1, 1);
-
-  const matrix = new THREE.Matrix4().compose(position, quaternion, scale);
-  seagrassInstances.setMatrixAt(i, matrix);
+const seaweeds = [];
+function createSeaweed() {
+    const geometry = new THREE.PlaneGeometry(0.1, 2, 1, 10);
+    const seaweed = new THREE.Mesh(geometry, seaweedMaterial);
+    seaweed.position.set(
+        (Math.random() - 0.5) * 10,
+        1,
+        (Math.random() - 0.5) * 10
+    );
+    seaweed.rotation.y = Math.random() * Math.PI * 2;
+    seaweeds.push(seaweed);
+    scene.add(seaweed);
 }
-scene.add(seagrassInstances);
+
+for (let i = 0; i < 50; i++) {
+    createSeaweed();
+}
 
 //---------------------------------
 // bubble
@@ -723,7 +760,7 @@ function getRandomAgent(self) {
 //Call this to add 1 random new agent
 function newAgent() {
 	let points = getRandomInt(0, getRandomInt(0, vertices2.length - 1));
-	//console.log(points, vertices2.length);
+	console.log(points, vertices2.length);
 	const geometry = new THREE.BufferGeometry();
 	geometry.setAttribute(
 		"position",
@@ -885,6 +922,9 @@ function animate() {
 
 	// monitor our FPS:
 	stats.begin();
+  //---
+     seaweedMaterial.uniforms.time.value = performance.now() * 0.001;
+  //---
 
 	// get current timing:
 	const dt = clock.getDelta();
@@ -1059,6 +1099,8 @@ function animate() {
 
 	// update appearance of avatars:
 	{
+		console.log(shared.avatars)
+
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
 			let avatarGroup = avatar_meshes[i]
@@ -1162,7 +1204,7 @@ socket.binaryType = 'arraybuffer';
 
 // let's know when it works:
 socket.onopen = function () {
-	// or document.write("websocket connected to "+addr); 
+	// or document.write("websocket connected to "+addr);
 	console.log("websocket connected to " + addr);
 }
 socket.onerror = function (err) {
@@ -1177,48 +1219,32 @@ socket.onclose = function (e) {
 }
 
 socket.onmessage = function (msg) {
-  if (msg.data.toString().substring(0, 1) == "{") {
-    // we received a JSON message; parse it:
-    let json = JSON.parse(msg.data);
-    // handle different message types:
-    switch (json.type) {
-      // case "uuid":
-      //   {
-      //     // set our local ID:
-      //     uuid = json.uuid;
-      //   }
-      //   break;
-      case "login-success":
-        {
-          uuid = json.uuid;
-          // json.avatar is the avatar data of client
-          const loginForm = document.getElementById("loginForm");
-          if (loginForm) {
-            loginForm.style.display = "none";
-          }
-          //console.log(json.avatar);
-        }
-        break;
-      case "avatars":
-        {
-          // iterate over json.avatars to update all our avatars
-          shared.avatars = json.avatars;
-        }
-        break;
-      case "creatures":
-        {
-          // iterate over json.creatures to update all our creatures
-          shared.creatures = json.creatures;
-        }
-        break;
-      default: {
-        console.log("received json", json);
-      }
-    }
-  } else {
-    console.log("received", msg.data);
-  }
-};
+	if (msg.data.toString().substring(0, 1) == "{") {
+		// we received a JSON message; parse it:
+		let json = JSON.parse(msg.data)
+		// handle different message types:
+		switch (json.type) {
+			case "uuid": {
+				// set our local ID:
+				uuid = json.uuid
+			} break;
+			case "avatars": {
+				// iterate over json.avatars to update all our avatars
+				shared.avatars = json.avatars
+			} break;
+			case "creatures": {
+				// iterate over json.creatures to update all our creatures
+				shared.creatures = json.creatures
+			} break;
+			default: {
+				console.log("received json", json)
+			}
+		}
+
+	} else {
+		console.log("received", msg.data);
+	}
+}
 
 function socket_send_message(msg) {
 	// abort if socket is not available:
@@ -1228,24 +1254,6 @@ function socket_send_message(msg) {
 
 	//console.log(msg);
 	socket.send(msg)
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  const loginButton = document.getElementById("loginButton");
-  if (loginButton) {
-    loginButton.addEventListener("click", login);
-  }
-});
-
-function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const message = {
-    type: "login",
-    username: username,
-    password: password,
-  };
-  socket_send_message(message);
 }
 
 ////////////////////////////////
