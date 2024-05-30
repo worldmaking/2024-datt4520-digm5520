@@ -58,8 +58,6 @@ camera.position.x = Math.random()*8 - 4
 camera.position.y = 0.8; // average human eye height is about 1.5m above ground
 camera.position.z = Math.random()*8; // let's stand 2 meters back
 
-console.log(camera.layers)
-
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 
@@ -180,7 +178,7 @@ if (onMobile == true) {
 	//Right joystick to look around
 	joystickR.on("move", function (evt, data) {
 		// DO EVERYTHING
-		console.log(evt, data);
+		//console.log(evt, data);
 		nav.lookx = data.vector.y;
 		nav.looky = -data.vector.x;
 	});
@@ -725,7 +723,7 @@ function getRandomAgent(self) {
 //Call this to add 1 random new agent
 function newAgent() {
 	let points = getRandomInt(0, getRandomInt(0, vertices2.length - 1));
-	console.log(points, vertices2.length);
+	//console.log(points, vertices2.length);
 	const geometry = new THREE.BufferGeometry();
 	geometry.setAttribute(
 		"position",
@@ -1061,8 +1059,6 @@ function animate() {
 
 	// update appearance of avatars:
 	{
-		console.log(shared.avatars)
-		
 		let count = Math.min(shared.avatars.length, MAX_NUM_AVATARS)
 		for (let i = 0; i < MAX_NUM_AVATARS; i++) {
 			let avatarGroup = avatar_meshes[i]
@@ -1200,7 +1196,7 @@ socket.onmessage = function (msg) {
           if (loginForm) {
             loginForm.style.display = "none";
           }
-          console.log(json.avatar);
+          //console.log(json.avatar);
         }
         break;
       case "avatars":
