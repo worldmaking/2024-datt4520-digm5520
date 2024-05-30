@@ -1179,8 +1179,8 @@ function animate() {
 
 	// are we in VR?
 	if (renderer.xr.isPresenting) {
-		controller.add(leftHand)
-		controller2.add(rightHand)
+		// controller.add(leftHand)
+		// controller2.add(rightHand)
 	}
 
 	if (sphereOnHand) {
