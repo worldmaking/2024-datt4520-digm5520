@@ -239,6 +239,7 @@ function makeAvatarGroup() {
 		opacity: 0.7,
 
 	});
+	ghostMaterial.color.setHSL(Math.random(), 0.75, 0.75)
 	const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
 	ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
 	ghostHead.name = "avatarHead";
@@ -262,6 +263,7 @@ function makeAvatarGroup() {
 		transparent: true, 
 		opacity: 0.7,
 	});
+	handMaterial.color.setHSL(Math.random(), 0.75, 0.75)
 
 	const leftHand = new THREE.Mesh(handGeometry, handMaterial);
 	leftHand.position.set(-1, -1, -3.5);
@@ -1187,6 +1189,12 @@ function animate() {
 				head.material.color.setHex(avatar.color)
 				head.material.needsUpdate = true
 			}
+
+			let lefthand = avatarGroup.getObjectByName("leftHand")
+			if (leftHand && avatar.handcolor) {
+				lefthand.material.color.setHex(avatar.handcolor)
+				lefthand.material.needsUpdate = true
+			}
 		}
 
 		// let color = new THREE.Color()
@@ -1227,7 +1235,8 @@ function animate() {
 			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
 			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
 			lightball:  pointLight1.position.toArray(),
-			color: avatarNav.color.getHex(),
+			color: ghostMaterial.color.getHex(),
+			handcolor: handMaterial.color.getHex(),
 			//shape: "sphere"
 		})
 	}
