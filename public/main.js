@@ -4,9 +4,11 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import Stats from "three/addons/libs/stats.module";
 import { XRButton } from "three/addons/webxr/XRButton.js";
-import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { Timer } from "three/addons/misc/Timer.js";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
+
+//. updated
 
 const onMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	navigator.userAgent
@@ -17,6 +19,12 @@ let nav = {
 };
 
 const raycastingObjects = [];
+const params = {
+	alpha: 0.5,
+	alphaHash: true,
+	taa: true,
+	sampleLevel: 2,
+};
 
 const scene = new THREE.Scene();
 
@@ -54,7 +62,6 @@ renderer.xr.enabled = true;
 // create and add the <canvas>
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(XRButton.createButton(renderer));
-document.body.appendChild(VRButton.createButton(renderer));
 
 // Add the red circle element HAOQIAN GU PART
 const redCircle = document.createElement('div');
@@ -267,8 +274,12 @@ function makeAvatarGroup() {
 	const ghostMaterial = new THREE.MeshStandardMaterial({
 		color: "#99ccff",
 		roughness: 0.2,
-		metalness: 0.5
+		metalness: 0.5,
+		transparent: true, 
+		opacity: 0.7,
+
 	});
+	ghostMaterial.color.setHSL(Math.random(), 0.75, 0.75)
 	const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
 	ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
 	ghostHead.name = "avatarHead";
@@ -288,8 +299,11 @@ function makeAvatarGroup() {
 	const handMaterial = new THREE.MeshStandardMaterial({
 		color: "#99ccff",
 		roughness: 0.2,
-		metalness: 0.5
+		metalness: 0.5,
+		transparent: true, 
+		opacity: 0.7,
 	});
+	handMaterial.color.setHSL(Math.random(), 0.75, 0.75)
 
 	const leftHand = new THREE.Mesh(handGeometry, handMaterial);
 	leftHand.position.set(-1, -1, -3.5);
@@ -356,26 +370,55 @@ scene.add(pointLight1);
 console.log(avatarGroup.getObjectByName("rightHand").worldToLocal(new THREE.Vector3(0, 0, 0)));
 
 
-// Seagrass setup:
-const seagrassGeometry = new THREE.CylinderGeometry(0.01, 0.02, 1.5, 3);
-const seagrassMaterial = new THREE.MeshStandardMaterial({ color: 'green',   emissive:0x00FF00,  emissiveIntensity: 0.5});
+const seaweedMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        time: { value: 0 }
+    },
+    vertexShader: `
+        uniform float time;
+        varying vec2 vUv;
+		varying vec3 vNormal;
+        void main() {
+            vUv = uv;
+			vNormal = normal;
 
-// setting seagrass-----------------------------
-const numSeagrass = 200;
-const seagrassInstances = new THREE.InstancedMesh(seagrassGeometry, seagrassMaterial, numSeagrass);
-for (let i = 0; i < numSeagrass; i++) {
-  const position = new THREE.Vector3(
-    (Math.random() - 0.5) * 10, 0.75,(Math.random() - 0.5) * 10 );
+            vec3 pos = position;
+            float angle = pos.y * 3.0 + time * 1.0;
 
-  const quaternion = new THREE.Quaternion();
-  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * Math.PI * 2);
+            pos.x += sin(angle) * 0.15 * pos.y;
+            pos.z += cos(angle) * 0.13 * pos.y;
 
-  const scale = new THREE.Vector3(1, 1, 1);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+    `,
+    fragmentShader: `
+		varying vec3 vNormal;
+        void main() {
+			vec3 normal = normalize(vNormal);
+            gl_FragColor = vec4(vec3(0.0, 0.3, 0.0) + normal*0.25, 1.0);
+        }
+    `
+});
 
-  const matrix = new THREE.Matrix4().compose(position, quaternion, scale);
-  seagrassInstances.setMatrixAt(i, matrix);
+const seaweeds = [];
+function createSeaweed() {
+    //const geometry = new THREE.PlaneGeometry(0.1, 2, 1, 10).translate(0, 1, 0);
+	let h = 1+Math.random()
+	const geometry = new THREE.CylinderGeometry(0.05, 0.025, h, 5, 30).translate(0, h/2, 0);
+    const seaweed = new THREE.Mesh(geometry, seaweedMaterial);
+    seaweed.position.set(
+        (Math.random() - 0.5) * 10,
+        0,
+        (Math.random() - 0.5) * 10
+    );
+    seaweed.rotation.y = Math.random() * Math.PI * 2;
+    seaweeds.push(seaweed);
+    scene.add(seaweed);
 }
-scene.add(seagrassInstances);
+
+for (let i = 0; i < 50; i++) {
+    createSeaweed();
+}
 
 //---------------------------------
 // bubble
@@ -423,6 +466,10 @@ function moveSphere(newTargetPosition) {
 function onPointerClick(event) {
 	const intersects = raycaster.intersectObjects(raycastingObjects);
 
+	clickToMoveSphere(intersects)
+}
+
+function clickToMoveSphere(intersects) {
 	if (intersects.length > 0) {
 		let newTargetPosition = intersects[0].point;
 		newTargetPosition.y += 0.1;
@@ -433,6 +480,7 @@ function onPointerClick(event) {
 		sphereDist = diff.length();
 	}
 }
+
 const circleRadius = 0.05;
 const circleSegments = 32;
 const circleGeometry = new THREE.SphereGeometry(circleRadius, circleSegments);
@@ -465,6 +513,71 @@ function hexToRgb(hex) {
 	let b = hex & 0xff;
 	return [r, g, b];
 }
+// GUI controls
+const gui = new GUI();
+const ghostFolder = gui.addFolder("Ghost Properties");
+
+let ghostHead = avatarGroup.getObjectByName("avatarHead")
+let ghostMaterial = ghostHead.material
+let leftHand = avatarGroup.getObjectByName("leftHand")
+let rightHand = avatarGroup.getObjectByName("rightHand")
+let handMaterial = leftHand.material
+
+const ghostProperties = {
+    color: ghostMaterial.color.getHex(),
+    shape: "Sphere"
+};
+
+ghostFolder.addColor(ghostProperties, "color").onChange(value => {
+    ghostMaterial.color.set(value);
+});
+
+const shapeOptions = ["Sphere", "Box", "Capsule"];
+ghostFolder.add(ghostProperties, "shape", shapeOptions).onChange(value => {
+    let newGeometry;
+    if (value === "Sphere") {
+        newGeometry = new THREE.SphereGeometry(2, 32, 32);
+    } else if (value === "Box") {
+        newGeometry = new THREE.BoxGeometry(2, 2, 2);
+    }else if (value === "Capsule") {
+      newGeometry = new THREE.CapsuleGeometry (2,1.5,10,10);
+    }
+    ghostHead.geometry.dispose(); // Dispose of the old geometry
+    ghostHead.geometry = newGeometry; // Assign the new geometry
+});
+
+ghostFolder.open();
+
+const handFolder = gui.addFolder("Hands Properties");
+
+const handProperties = {
+    color: handMaterial.color.getHex(),
+    shape: "Sphere"
+};
+
+handFolder.addColor(handProperties, "color").onChange(value => {
+    handMaterial.color.set(value);
+});
+
+handFolder.add(handProperties, "shape", shapeOptions).onChange(value => {
+    let newHandGeometry;
+    if (value === "Sphere") {
+        newHandGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    } else if (value === "Box") {
+        newHandGeometry = new THREE.BoxGeometry(1, 1, 1);
+    } else if (value === "Capsule") {
+      newHandGeometry = new THREE.CapsuleGeometry (0.5,0.5,10,20);
+    }
+    leftHand.geometry.dispose(); // Dispose of the old geometry
+    rightHand.geometry.dispose(); // Dispose of the old geometry
+    leftHand.geometry = newHandGeometry.clone(); // Assign the new geometry
+    rightHand.geometry = newHandGeometry.clone(); // Assign the new geometry
+});
+
+handFolder.open();
+
+
+
 
 // Tree
 
@@ -638,6 +751,10 @@ function getIntersections(controller) {
 	raycaster.setFromXRController(controller);
 	let intersections = raycaster.intersectObjects(scene.children);
 	// etc.
+
+	//const intersects = raycaster.intersectObjects(raycastingObjects);
+
+	clickToMoveSphere(intersections)
 }
 
 // events for getting/losing controllers:
@@ -780,7 +897,7 @@ function getRandomAgent(self) {
 //Call this to add 1 random new agent
 function newAgent() {
 	let points = getRandomInt(0, getRandomInt(0, vertices2.length - 1));
-	//console.log(points, vertices2.length);
+	console.log(points, vertices2.length);
 	const geometry = new THREE.BufferGeometry();
 	geometry.setAttribute(
 		"position",
@@ -942,6 +1059,9 @@ function animate() {
 
 	// monitor our FPS:
 	stats.begin();
+  //---
+     seaweedMaterial.uniforms.time.value = performance.now() * 0.001;
+  //---
 
 	// get current timing:
 	const dt = clock.getDelta();
@@ -1099,6 +1219,12 @@ function animate() {
 	);
 	avatarGroup.rotation.copy(camera.rotation);
 
+	// are we in VR?
+	if (renderer.xr.isPresenting) {
+		// controller.add(leftHand)
+		// controller2.add(rightHand)
+	}
+
 	if (sphereOnHand) {
 		pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(sphere1Pos.clone()));
 		firstTree = true;
@@ -1150,6 +1276,12 @@ function animate() {
 				head.material.color.setHex(avatar.color)
 				head.material.needsUpdate = true
 			}
+
+			let lefthand = avatarGroup.getObjectByName("leftHand")
+			if (leftHand && avatar.handcolor) {
+				lefthand.material.color.setHex(avatar.handcolor)
+				lefthand.material.needsUpdate = true
+			}
 		}
 
 		// let color = new THREE.Color()
@@ -1187,10 +1319,13 @@ function animate() {
 				pos: avatarGroup.position.toArray(),
 				dir: avatarGroup.quaternion.toArray(),
 			},
-			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
-			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
+			// hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
+			// hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
+			hand1: leftHand.position.toArray(),
+			hand2: rightHand.position.toArray(),
 			lightball:  pointLight1.position.toArray(),
-			color: avatarNav.color.getHex(),
+			color: ghostMaterial.color.getHex(),
+			handcolor: handMaterial.color.getHex(),
 			//shape: "sphere"
 		})
 	}
@@ -1235,48 +1370,35 @@ socket.onclose = function (e) {
 }
 
 socket.onmessage = function (msg) {
-  if (msg.data.toString().substring(0, 1) == "{") {
-    // we received a JSON message; parse it:
-    let json = JSON.parse(msg.data);
-    // handle different message types:
-    switch (json.type) {
-      // case "uuid":
-      //   {
-      //     // set our local ID:
-      //     uuid = json.uuid;
-      //   }
-      //   break;
-      case "login-success":
-        {
-          uuid = json.uuid;
-          // json.avatar is the avatar data of client
-          const loginForm = document.getElementById("loginForm");
-          if (loginForm) {
-            loginForm.style.display = "none";
-          }
-          //console.log(json.avatar);
-        }
-        break;
-      case "avatars":
-        {
-          // iterate over json.avatars to update all our avatars
-          shared.avatars = json.avatars;
-        }
-        break;
-      case "creatures":
-        {
-          // iterate over json.creatures to update all our creatures
-          shared.creatures = json.creatures;
-        }
-        break;
-      default: {
-        console.log("received json", json);
-      }
-    }
-  } else {
-    console.log("received", msg.data);
-  }
-};
+	if (msg.data.toString().substring(0, 1) == "{") {
+		// we received a JSON message; parse it:
+		let json = JSON.parse(msg.data)
+		// handle different message types:
+		switch (json.type) {
+			case 'login-success': {
+				uuid = json.uuid;
+				const loginForm = document.getElementById("loginForm")
+				if (loginForm) {
+					loginForm.style.display = "none"
+				}
+			} break;
+			case "avatars": {
+				// iterate over json.avatars to update all our avatars
+				shared.avatars = json.avatars
+			} break;
+			case "creatures": {
+				// iterate over json.creatures to update all our creatures
+				shared.creatures = json.creatures
+			} break;
+			default: {
+				console.log("received json", json)
+			}
+		}
+
+	} else {
+		console.log("received", msg.data);
+	}
+}
 
 function socket_send_message(msg) {
 	// abort if socket is not available:
