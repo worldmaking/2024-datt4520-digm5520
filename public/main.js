@@ -1026,8 +1026,8 @@ function animate() {
 			type: "avatar",
 			uuid,
 			head: {
-				pos: avatarGroup.getObjectByName("ghostHead").position.toArray(),
-				dir: avatarGroup.getObjectByName("ghostHead").quaternion.toArray(),
+				pos: avatarGroup.getObjectByName("avatarHead").position.toArray(),
+				dir: avatarGroup.getObjectByName("avatarHead").quaternion.toArray(),
 			},
 			hand1: avatarGroup.getObjectByName("leftHand").position.toArray(),
 			hand2: avatarGroup.getObjectByName("rightHand").position.toArray(),
