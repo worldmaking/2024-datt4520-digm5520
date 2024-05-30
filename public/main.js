@@ -58,6 +58,8 @@ camera.position.x = Math.random()*8 - 4
 camera.position.y = 1.5; // average human eye height is about 1.5m above ground
 camera.position.z = Math.random()*8; // let's stand 2 meters back
 
+console.log(camera.layers)
+
 //const orbitControls = new OrbitControls(camera, renderer.domElement);
 const controls = new PointerLockControls(camera, renderer.domElement);
 
@@ -975,17 +977,17 @@ function animate() {
 
 			// hide and skip any meshes that we don't need to render:
 			if (i >= count) {
-				avatarGroup.visible = false;
+				avatarGroup.traverse(o => o.visible = false);
 				continue;
 			}
 
 			// don't render our own avatar
 			if (avatar.uuid == uuid) {
-				avatarGroup.visible = false;
+				avatarGroup.traverse(o => o.visible = false);
 				continue;
 			}
 
-			avatarGroup.visible = true;
+			avatarGroup.traverse(o => o.visible = false);
 
 			// udpate pose:
 			avatarGroup.position.fromArray(avatar.head.pos)
