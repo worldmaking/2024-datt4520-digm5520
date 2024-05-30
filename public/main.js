@@ -276,6 +276,8 @@ const plane_mat = new THREE.MeshStandardMaterial({
 const plane = new THREE.Mesh(plane_geo, plane_mat);
 plane.rotateX(Math.PI / 2);
 scene.add(plane);
+
+
 raycastingObjects.push(plane);
 let grid = new THREE.GridHelper(10, 10);
 // scene.add(grid);
@@ -297,6 +299,48 @@ pointLight1.position.copy(avatarGroup.getObjectByName("rightHand").localToWorld(
 pointLight1.add(sphere1);
 scene.add(pointLight1);
 console.log(avatarGroup.getObjectByName("rightHand").worldToLocal(new THREE.Vector3(0, 0, 0)));
+
+
+// Seagrass setup:
+const seagrassGeometry = new THREE.CylinderGeometry(0.01, 0.02, 1.5, 3);
+const seagrassMaterial = new THREE.MeshStandardMaterial({ color: 'green',   emissive:0x00FF00,  emissiveIntensity: 0.5});
+
+// setting seagrass-----------------------------
+const numSeagrass = 200;
+const seagrassInstances = new THREE.InstancedMesh(seagrassGeometry, seagrassMaterial, numSeagrass);
+for (let i = 0; i < numSeagrass; i++) {
+  const position = new THREE.Vector3(
+    (Math.random() - 0.5) * 10, 0.75,(Math.random() - 0.5) * 10 );
+
+  const quaternion = new THREE.Quaternion();
+  quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * Math.PI * 2);
+
+  const scale = new THREE.Vector3(1, 1, 1);
+
+  const matrix = new THREE.Matrix4().compose(position, quaternion, scale);
+  seagrassInstances.setMatrixAt(i, matrix);
+}
+scene.add(seagrassInstances);
+
+//---------------------------------
+// bubble
+const bubbleGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.7 });
+
+const bubbles = [];
+function createBubble() {
+    const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+    bubble.position.set(
+        (Math.random() - 0.5) * 10,
+        0,
+        (Math.random() - 0.5) * 10
+    );
+    bubble.scale.setScalar(Math.random() * 0.5 + 0.1);
+    bubble.speed = Math.random() * 0.02 + 0.01;
+    bubbles.push(bubble);
+    scene.add(bubble);
+}
+//---------------------------
 
 const raycaster = new THREE.Raycaster();
 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
@@ -584,6 +628,15 @@ let shared = {
 //   side: THREE.DoubleSide
 // });
 
+const MAX_NUM_CREATURES = 99
+const creature_mesh = new THREE.BoxGeometry(0.1, 0.2, 0.6);
+const creature_material = new THREE.MeshStandardMaterial()
+const creatures = new THREE.InstancedMesh(creature_mesh, creature_material, MAX_NUM_CREATURES)
+for (let i=0; i<MAX_NUM_CREATURES; i++) {
+	creatures.setColorAt(i, new THREE.Color().setHSL(Math.random(), 0.7, 0.7))
+}
+scene.add(creatures)
+
 const boundaryX = Math.floor(Math.random() * 4);
 const boundaryY = Math.floor(Math.random() * 4);
 const boundaryZ = Math.floor(Math.random() * 4);
@@ -685,6 +738,8 @@ function newAgent() {
 	}
 	geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 	let mesh = new THREE.Mesh(geometry, agentMaterial);
+	mesh.visible = false
+	mesh.userData.color = color
 
 	function dispose(a) {
 		// geometry.getAttribute("position").remove()
@@ -796,6 +851,26 @@ function moveAgents() {
 	}
 }
 
+function updateCreatures() {
+	creatures.count = Math.min(MAX_NUM_CREATURES, agents.length)
+	let mat = new THREE.Matrix4()
+	let position = new THREE.Vector3()
+	let quaternion = new THREE.Quaternion()
+	let scale = new THREE.Vector3(1, 1, 1)
+	let color = new THREE.Color()
+	for (let i=0; i<creatures.count; i++) {
+		let agent = agents[i]
+
+		position.copy(agent.mesh.position)
+		quaternion.copy(agent.mesh.quaternion)
+		mat.compose(position, quaternion, scale)
+		creatures.setMatrixAt(i, mat)
+		creatures.setColorAt(i, agent.mesh.userData.color)
+	}
+	creatures.instanceMatrix.needsUpdate = true;
+	//creatures.instanceColor.needsUpdate = true;
+}
+
 //Returns random Vector pos
 function randomVec() {
 	return new THREE.Vector3(
@@ -819,6 +894,8 @@ function animate() {
 
 
 	moveAgents();
+
+	updateCreatures()
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	const timestamp = t
@@ -883,7 +960,21 @@ function animate() {
 		controls.moveForward(-vel.z * delta);
 		controls.moveRight(-vel.x * delta);
 	}
+//--------
+   // bubble location
+    bubbles.forEach(bubble => {
+        bubble.position.y += bubble.speed;
+        if (bubble.position.y > 5) {
+            scene.remove(bubble);
+            bubbles.splice(bubbles.indexOf(bubble), 1);
+        }
+    });
 
+    // random bubble
+    if (Math.random() < 0.05) {
+        createBubble();
+    }
+  //---------
 	//get sphere distance from camera
 	let sphereDiff = pointLight1.position.clone().sub(camera.position);
 	if (sphereDiff.length() - sphereDist > 2) {
@@ -1139,6 +1230,114 @@ let avatarNav = {
 	dir: new THREE.Quaternion(),
 }
 
-
-
 renderer.setAnimationLoop(animate);
+
+////// AUDIO ///////
+
+async function audiosetup() {
+
+	// score
+	let lead = [
+		"Bb3 s",
+		"A3  s",
+		"Bb3 e",
+		"G3  e",
+		"A3  e",
+		"G3  e",
+		"F3  e",
+		"G3  ee",
+
+		"G3  e",
+		"A3  e",
+		"Bb3 e",
+		"A3  e",
+		"G3  e",
+		"A3  e",
+		"F3  q",
+
+		"B4  s",
+		"A4  s",
+		"G4  e",
+		"A4  e",
+		"B4  e",
+		"C5  e",
+		"D5  q",
+
+		"E4  s",
+		"F4  s",
+		"G4  e",
+		"F4  e",
+		"E4  e",
+		"D4  e",
+		"C4  q",
+
+		"E4  e",
+		"F4  e",
+		"G4  e",
+		"A4  e",
+		"B4  e",
+		"C5  e",
+		"D5  e",
+		"E5  q",
+		"C5  h",
+		"G4  e",
+		"E4  e",
+		"C4  hh"
+	];
+
+	let lead2 = [
+		"C4  q",
+		"E4  q",
+		"G4  q",
+		"C5  qd",
+		"A3  q",
+		"C4  q",
+		"E4  q",
+		"A4  q",
+		"F3  q",
+		"A3  q",
+		"C4  q",
+		"F4  q",
+		"G3  q",
+		"B3  q",
+		"D4  q",
+		"G4  qd"
+	];
+
+
+	// create an AudioListener and add it to the camera
+	// (this embeds the WebAudio spatialization feature of audioContext.listener)
+	const listener = new THREE.AudioListener();
+	camera.add(listener);
+
+	// get the AudioContext
+	const audioContext = listener.context;
+	// WebAudio requires a click to start audio:
+	document.body.onclick = () => {
+		audioContext.resume();
+	};
+
+	function makeAudioSequence(score, position) {
+		let tempo = 10;
+		let sequence1 = new Sequence(audioContext, tempo, score);
+
+		sequence1.staccato = 0.55;
+
+		let mesh = new THREE.Mesh(
+			new THREE.SphereGeometry(0.3),
+			new THREE.MeshStandardMaterial()
+		);
+		mesh.position.copy(position);
+		scene.add(mesh);
+		let sound = new THREE.PositionalAudio(listener);
+		mesh.add(sound);
+		sequence1.play(audioContext.currentTime);
+		sound.setNodeSource(sequence1.output);
+	}
+
+
+	makeAudioSequence(lead, new THREE.Vector3(-2, 0.5, -2));
+	makeAudioSequence(lead2, new THREE.Vector3(2, 0.5, 2));
+}
+
+audiosetup()
