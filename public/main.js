@@ -1223,8 +1223,8 @@ function animate() {
 	if (renderer.xr.isPresenting) {
 		controller1.updateMatrixWorld( true );
 		controller2.updateMatrixWorld( true );
-		//controller2.add(leftHand)
-		controller1.add(rightHand)
+		controller2.add(leftHand)
+		//controller1.add(rightHand)
 	}
 
 	if (sphereOnHand) {
