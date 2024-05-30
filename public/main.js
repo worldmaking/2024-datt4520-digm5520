@@ -7,6 +7,9 @@ import { XRButton } from "three/addons/webxr/XRButton.js";
 import { VRButton } from "three/addons/webxr/VRButton.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { Timer } from "three/addons/misc/Timer.js";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
+
+
 
 const onMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	navigator.userAgent
@@ -17,6 +20,12 @@ let nav = {
 };
 
 const raycastingObjects = [];
+const params = {
+	alpha: 0.5,
+	alphaHash: true,
+	taa: true,
+	sampleLevel: 2,
+};
 
 const scene = new THREE.Scene();
 
@@ -225,7 +234,10 @@ function makeAvatarGroup() {
 	const ghostMaterial = new THREE.MeshStandardMaterial({
 		color: "#99ccff",
 		roughness: 0.2,
-		metalness: 0.5
+		metalness: 0.5,
+		transparent: true, 
+		opacity: 0.7,
+
 	});
 	const ghostHead = new THREE.Mesh(ghostGeometry, ghostMaterial);
 	ghostHead.position.set(0, 0, 0); // Set the initial height of the ghost
@@ -246,7 +258,9 @@ function makeAvatarGroup() {
 	const handMaterial = new THREE.MeshStandardMaterial({
 		color: "#99ccff",
 		roughness: 0.2,
-		metalness: 0.5
+		metalness: 0.5,
+		transparent: true, 
+		opacity: 0.7,
 	});
 
 	const leftHand = new THREE.Mesh(handGeometry, handMaterial);
@@ -423,6 +437,71 @@ function hexToRgb(hex) {
 	let b = hex & 0xff;
 	return [r, g, b];
 }
+// GUI controls
+const gui = new GUI();
+const ghostFolder = gui.addFolder("Ghost Properties");
+
+let ghostHead = avatarGroup.getObjectByName("avatarHead")
+let ghostMaterial = ghostHead.material
+let leftHand = avatarGroup.getObjectByName("leftHand")
+let rightHand = avatarGroup.getObjectByName("rightHand")
+let handMaterial = leftHand.material
+
+const ghostProperties = {
+    color: ghostMaterial.color.getHex(),
+    shape: "Sphere"
+};
+
+ghostFolder.addColor(ghostProperties, "color").onChange(value => {
+    ghostMaterial.color.set(value);
+});
+
+const shapeOptions = ["Sphere", "Box", "Capsule"];
+ghostFolder.add(ghostProperties, "shape", shapeOptions).onChange(value => {
+    let newGeometry;
+    if (value === "Sphere") {
+        newGeometry = new THREE.SphereGeometry(2, 32, 32);
+    } else if (value === "Box") {
+        newGeometry = new THREE.BoxGeometry(2, 2, 2);
+    }else if (value === "Capsule") {
+      newGeometry = new THREE.CapsuleGeometry (2,1.5,10,10);
+    }
+    ghostHead.geometry.dispose(); // Dispose of the old geometry
+    ghostHead.geometry = newGeometry; // Assign the new geometry
+});
+
+ghostFolder.open();
+
+const handFolder = gui.addFolder("Hands Properties");
+
+const handProperties = {
+    color: handMaterial.color.getHex(),
+    shape: "Sphere"
+};
+
+handFolder.addColor(handProperties, "color").onChange(value => {
+    handMaterial.color.set(value);
+});
+
+handFolder.add(handProperties, "shape", shapeOptions).onChange(value => {
+    let newHandGeometry;
+    if (value === "Sphere") {
+        newHandGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    } else if (value === "Box") {
+        newHandGeometry = new THREE.BoxGeometry(1, 1, 1);
+    } else if (value === "Capsule") {
+      newHandGeometry = new THREE.CapsuleGeometry (0.5,0.5,10,20);
+    }
+    leftHand.geometry.dispose(); // Dispose of the old geometry
+    rightHand.geometry.dispose(); // Dispose of the old geometry
+    leftHand.geometry = newHandGeometry.clone(); // Assign the new geometry
+    rightHand.geometry = newHandGeometry.clone(); // Assign the new geometry
+});
+
+handFolder.open();
+
+
+
 
 // Tree
 
