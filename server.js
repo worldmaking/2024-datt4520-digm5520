@@ -103,7 +103,7 @@ try {
 }
 
 avatarHistory = [...shared.avatars];
-
+shared.avatars = [];
 let userData = {};
 
 try {
@@ -125,7 +125,6 @@ wss.on("connection", function (client, request) {
   let avatar = undefined;
 
   client.on("error", console.error);
-
   client.on("message", function message(data) {
     if (data.toString().substring(0, 1) == "{") {
       let msg = JSON.parse(data);
@@ -142,7 +141,7 @@ wss.on("connection", function (client, request) {
         case "login":
 			// create random username if no username was given
 			if (!msg.username) msg.username = uuidv4()
-			
+
 			console.log(msg)
           handleLogin(
             msg,
@@ -161,9 +160,22 @@ wss.on("connection", function (client, request) {
     }
   });
 
+  const interval = setInterval(() => {
+    const currentTime = process.uptime();
+
+    if (avatar == undefined) {
+      return;
+    }
+
+    if (currentTime - avatar.last_message_time > client_timeout_seconds) {
+        if (client && client.readyState === ws.OPEN) {
+          client.close(4001, 'Connection timed out');
+        }
+      }
+  }, 1000);
   client.on("close", function (code, reason) {
-    console.log(shared.avatars);
     console.log(`Client with UUID ${uuid} disconnected.)`);
+    clearInterval(interval);
     if (uuid) {
       const index = shared.avatars.findIndex((av) => av.uuid === uuid);
       if (index > -1) {
@@ -182,9 +194,7 @@ wss.on("connection", function (client, request) {
 function updateAllClients() {
   // remove stale avatars:
   let t = process.uptime();
-  // shared.avatars = shared.avatars.filter(
-  //   (a) => t - a.last_message_time < client_timeout_seconds,
-  // );
+
 
   // send all avatar data:
   {
@@ -233,6 +243,7 @@ function handleLogin(msg, client, callback) {
       }),
     );
     callback(user.uuid, avatar); // Update uuid and avatar in the closure
+    shared.avatars.push(avatar);
   } else {
     const newUser = createUser(username);
     const newAvatar = createAvatar(newUser.uuid);
