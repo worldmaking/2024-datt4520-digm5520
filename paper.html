@@ -6,17 +6,17 @@
     <title>Lumen Final Paper</title>
     <link rel="stylesheet" href="style.css">
     <script>
-        var hideTOC = function () {
-            var hideThese = document.getElementsByClassName("toc-list");
+        var hideContents = function () {
+            var hideThese = document.getElementsByClassName("contents-list");
             for (var i = 0; i < hideThese.length; i++)
                 hideThese[i].style.display = "none";
-            document.getElementById("showTOC").style.display = "";
+            document.getElementById("showContents").style.display = "";
         }
-        var showTOC = function () {
-            var showThese = document.getElementsByClassName("toc-list");
+        var showContents = function () {
+            var showThese = document.getElementsByClassName("contents-list");
             for (var i = 0; i < showThese.length; i++)
                 showThese[i].style.display = "";
-            document.getElementById("showTOC").style.display = "none";
+            document.getElementById("showContents").style.display = "none";
         }
     </script>
 </head>
@@ -28,63 +28,97 @@
         <a class="logo" href="index.html">Lumen</a>
         <div id="nav-list">
             <a class="list-item" href="index.html">Overview</a>
-            <a class="list-item" href="report.html">Paper</a>
+            <a class="list-item" href="paper.html">Paper</a>
             <a class="list-item" href="https://xr.alicelab.world/">Project</a>
         </div>
     </div>
 
     <div id="main">
         <h1>Lumen</h1>
+        <!-- Add your name here! In alphabetical by last name please.-->
         <p>Add your names here.</p>
-        <p>Prepared for York University course DIGM5520, 2024-05-31.</p>
+        <p>Prepared for York University course DIGM5520 Spatial Computing in Responsive Environments, 2024-06-09.</p>
 
-        <div id="toc">
-            <p><span style="font-weight:bold;" ;>Contents</span> (<a href='javascript:void(null)' class='toc-list'
-                    onclick='hideTOC()'>hide</a><a href='javascript:void(null)' id='showTOC' style="display:none;"
-                    onclick='showTOC()'>show</a>)</p>
-            <ul class="toc-list">
+        <div id="contents">
+            <p><span style="font-weight:bold;">Contents</span> (<a href='javascript:void(null)' class='contents-list'
+                    onclick='hideContents()'>hide</a><a href='javascript:void(null)' id='showContents'
+                    style="display:none;" onclick='showContents()'>show</a>)</p>
+            <ul class="contents-list">
                 <li><a href="#overview">Overview</a></li>
                 <li><a href="#related">Related Works</a></li>
-                <li><a href="#dev">Development</a>
+                <li><a href="#development">Development</a>
                     <ul>
-                        <li><a href="#sound">Sound Synthesis</a></li>
                         <li><a href="#agent">Agent Design and Interaction</a></li>
                         <li><a href="#avatar">Player Avatar Design, Interaction, and Navigation</a></li>
+                        <li><a href="#sound">Sound Synthesis</a></li>
                         <li><a href="#database">Databasing and User Persistence</a></li>
                         <li><a href="#challenge">Challenges and Solutions</a></li>
                     </ul>
                 </li>
                 <li><a href="#results">Results</a></li>
                 <li><a href="#future">Future Work</a></li>
-                <li><a href="#ref">References</a></li>
+                <li><a href="#references">References</a></li>
             </ul>
         </div>
 
-        <h2>Overview</h2>
-        <p>Project desciption</p>
+        <h2 id="overview">Overview</h2>
+        <p>Lumen envisions a dark, underwater world illuminated by ambient lighting sufficient to observe nearby
+            surroundings. In this world, various types and sizes of sea life agents exist. The user takes on the form of
+            a “spirit” carrying a point light that can be used to interact with the world. They can interact with the
+            world by throwing balls of light using their controller or pointer. When agents are observed for more than
+            two seconds, they move towards the user's current gaze position.</p>
+        <p>Users can explore this environment through the use of VR headsets, desktop devices, or mobile devices,
+            allowing multiple users to access it simultaneously. In VR, users can walk, crouch, jump, and look around.
+            On desktop devices, the user can use WASD to move and their cursor to pan the camera. Finally, on mobile
+            devices, the user can use joysticks to walk around and control the direction of the camera, and tap the
+            screen to throw the light.</p>
 
-        <h2>Related Work</h2>
-        <p>Related work</p>
+        <h2 id="related">Related Works</h2>
+        <h3><a href="https://www.teamlab.art/w/graffiti_nature_reborn/">Graffiti Nature: Lost, Immersed and Reborn</a>
+        </h3>
+        <p><cite>Graffiti Nature: Lost, Immersed and Reborn</cite>is an installation where participants can colour in a
+            creature on a piece of paper and watch it come to life within the virtual environment, interacting with
+            other digital organisms in a shared space. These creatures multiply if they eat other living things, but
+            disappear if they do not eat enough or are eaten by other creatures.
+        </p>
+        <p>In Lumen, the agents and environment respond to the light that the user throws. The agents are curious about
+            the light the user holds, but as soon as it is thrown into the world, they grow frantic and aggressive,
+            fighting over the light as a scarce resource and sometimes choosing to kill another agent over it.
+        </p>
 
-        <h2>Development</h2>
-        <h3>Sound Synthesis</h3>
-        <p></p>
+        <h3><a href="https://youtu.be/qADXXnPy4hA">Unfinished Swan</a></h3>
+        <p><cite>Unfinished Swan</cite> is a game that places players in a stark-white world. Players reveal the world
+            around them by splattering black paint, gradually uncovering the environment as they explore. The game
+            encourages players to interact with an initially invisible world. In Lumen, users use point lights to
+            illuminate and interact with the dark underwater environment. Both Unfinished Swan and Lumen rely on the
+            user's actions to transform and reveal their respective worlds, enhancing the sense of exploration and
+            engagement.
+        </p>
 
-        <h3>Agent Design and Interaction</h3>
-        <p>
-            The goals of agent interaction changed throughout the course of the project. Originally the goal was to make
+        <h3><a href="https://youtu.be/4YmBZauVYyE">Devil's Tuning Fork</a></h3>
+        <p>Similar to <cite>Unfinished Swan</cite>, <cite>Devil's Tuning Fork</cite> is a game that invites players to
+            interact with the invisible world around them. It uses echolocation as its primary navigational mechanic.
+            Players emit sound waves or “echos” to visualise their surroundings, mapping out the environment in response
+            to auditory feedback.</p>
+
+        <h2 id="development">Development</h2>
+        <!-- Please talk about what you/your group worked on under your corresopnding h3 heading! -->
+
+        <h3 id="agent">Agent Design and Interaction</h3>
+        <!-- Interaction -->
+        <p>The goals of agent interaction changed throughout the course of the project. Originally the goal was to make
             the agents defined to a set of species that had target species and would move around. When the project was
             in the ideation phase and the idea of echolocation was mentioned, the agents were to be hunting with timed
             updated based on the pulses of vision from the user or whatever other source was to be used. As the vision
             for the project changed, it became clear what core ideas for the agents would stick into the final project.
-            Agents, in terms of behaviour, would need to:
-            <ul><li>Hunt each other</li>
+            Agents, in terms of behaviour, would need to:</p>
+        <ul>
+            <li>Hunt each other</li>
             <li>Wander aimlessly</li>
             <li>Be interested in light sources</li>
             <li>Stay within a certain radius of the world origin</li>
-            </ul>
-            
-            The first aim was simply to make the agents move. Agents existed as placeholder red triangles. Giving them a
+        </ul>
+        <p>The first aim was simply to make the agents move. Agents existed as placeholder red triangles. Giving them a
             starter random position and a random goal position allowed them to move between those two, then assign
             themselves a new goal to move towards. Agents were then given a boolean that defined if they were hunting,
             and the species idea was dropped to move more towards an individual behaviour model for agents. This means
@@ -94,28 +128,268 @@
             itself to account for the hunting behaviour. The light source idea for the final project changed a few times
             so from early on in agent behaviour design we accounted for the idea of certain points the agents would be
             interested in. The agents will, when close to a point that is designated as a "light source", will attempt
-            to stay close to it and will congregate to hunt each other in the general area of the light.
+            to stay close to it and will congregate to hunt each other in the general area of the light.</p>
+        <p>At this point the agents still existed as placeholder triangles but the behaviour of them hunting,
+            interacting with light, and wandering was working and could be integrated with the rest of the project.</p>
 
-            At this point the agents still existed as placeholder triangles but the behaviour of them hunting,
-            interacting with light, and wandering was working and could be integrated with the rest of the project.
+        <h3 id="avatar">Player Avatar Design, Interaction, and Navigation</h3>
+        <p></p>
+
+        <img src="./imgs/avatar_concepts.png" width="960" />
+        <p><i>Figure 1. Concept sketches of the player avatar.</i></p>
+
+        <h3 id="sound">Sound Synthesis</h3>
+        <!-- Ambient Sound -->
+        <p>The shift in mindset evolved from selecting pre-existing music to composing original music. From sourcing
+            existing melodies (ready-made) to generating new music, the focus shifted to coding melodies by
+            understanding the notation of musical notes within the programming language. The goal was to mix the
+            melodies, position them across two channels, and achieve an immersive, three-dimensional sound effect within
+            the VR space. However, although the artwork's environment is related to the undersea, the chaotic sound of
+            water alone is too realistic to evoke an emotional response from the viewer. The inspiration came from
+            simulating the experience of being immersed in a bathtub with music playing through a stereo, creating a
+            blend of water sounds and music. This blend results in a chaotic, fuzzy, and ethereal melody that induces
+            relaxation. </p>
+        <p>The first step involved enhancing the existing HTML. This provided functionalities for creating musical
+            notes, defining note sequences, setting audio parameters, and controlling playback. </p>
+        <ul>
+            <li><span style="font-weight:bold;">Sequence class:</span> Defines a class named Sequence, providing the
+                logic for a complete music sequence player, allowing
+                for easy creation and playback of music sequences within a web page. </li>
+            <li><span style="font-weight:bold;">Enharmonics:</span> This variable contains a series of enharmonics, each
+                representing the distance in semitones
+                from the note C.</li>
+            <li><span style="font-weight:bold;">Note class:</span> Defines a Note class for representing musical notes.
+                It has two properties: "frequency,"
+                representing the frequency of the note, and "duration," representing the duration of the note. The
+                <code>getFrequency()</code> method converts note names to frequencies, while the
+                <code>getDuration()</code>
+                method converts durations to seconds.
+            </li>
+        </ul>
+        <p>Following that is the CSS section, which establishes the overlay. The overlay's function is to mask a
+            specific portion when coding the visual aspect in JavaScript. This ensures that the section isn't visible in
+            the final visual output but remains masked. The overlay covers the bottom of the page entirely and spans the
+            full width of the screen without impacting the actual page content.</p>
+        <div class="code-block">
+            <pre><code>
+        * {
+            margin: 0;
+        }
+    
+        #overlay {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            z-index: 10;
+            width: 100%;
+            white-space: pre;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            text-rendering: optimizeLegibility;
+            font-family: monospace;
+        }
+        </code></pre>
+        </div>
+        <p>The JavaScript code covers the following key parts:</p>
+        <ul>
+            <li><span style="font-weight:bold;">Three.js and WebXR setup:</span> First, it imports the necessary
+                Three.js components and WebXR related
+                components. Then it creates the scene, renderer, camera, and enables WebXR functionality.</li>
+            <li><span style="font-weight:bold;">Lighting and mesh auxiliary lines:</span> Added hemispherical and
+                directional lighting to the scene, as well as
+                a mesh auxiliary line.</li>
+            <li><span style="font-weight:bold;">Window resize handling:</span> Listened to a window size change event to
+                update the camera's aspect ratio and
+                handle renderer sizing in XR mode.</li>
+            <li><span style="font-weight:bold;">Audio settings:</span> An audio listener was created and added to the
+                camera. Also created a positional audio
+                object and added it to a cube mesh object. In addition, the audio context is launched by clicking on the
+                page. </li>
+            <li><span style="font-weight:bold;">Controller setup:</span> An OrbitControls controller was created to
+                allow interaction in the scene.</li>
+            <li><span style="font-weight:bold;">Animation loop:</span> An animation loop is set up to update the scene
+                at each frame and render it.</li>
+            <li><span style="font-weight:bold;">Music sequence playback settings:</span> In the
+                <code>audiosetup()</code>
+                function, a music sequence is defined and some
+                audio parameters are set and initialized when the page is loaded.</li>
+        </ul>
+        <p>Based on this, two melodies were created, exploring how melodies can be expressed in code to align with the
+            project's theme. The variable "lead" defines a simple sequence of notes. Each string represents a note,
+            including its pitch and duration. We experimented with different note combinations to create a suitable
+            melody for the ambient music. <span style="font-style: italic;">Melody01</span> consists of quarter
+            notes, while <span style="font-style: italic;">Melody02</span> is primarily comprised of
+            eighth notes but also includes some sixteenth notes, quarter notes, half notes, and dotted eighth notes,
+            resulting in a rhythmically diverse melody.</p>
+        <ul>
+            <li><span style="font-weight:bold;">Note names:</span> Represent the alphabetical letters for pitch (A to
+                G), followed by a number indicating the
+                octave of the note. For example, “C4” represents the note C in the fourth octave.</li>
+            <li><span style="font-weight:bold;">Duration:</span> Represents the duration of a note, with letters
+                indicating different note lengths. Common
+                symbols include:</li>
+            <ul>
+                <li>"q" for quarter note</li>
+                <li>"e" for eighth note</li>
+                <li>"s" for sixteenth note</li>
+                <li>"h" for half note</li>
+                <li>"w" for whole note</li>
+                <li>"d" for a note duration with a dot, indicating the duration is increased by half the note's original
+                    length.</li>
+            </ul>
+        </ul>
+        <p>To alter the sound to create a sense of underwater blurriness and echo, a low-pass filter was created
+            using <code>const filter = audioContext.createBiquadFilter()</code>, where its type and parameters were set,
+            and then
+            applied to the audio sequence. This enables filtering of the audio to achieve various sound effects such as
+            bass, treble, or blur. Additional adjustments were made to the music sequence's sound effects using
+            <code>sequence1.staccato</code>, <code>sequence1.gain.gain.value</code>,
+            <code>sequence1.mid.frequency.value</code>, and
+            <code>sequence1.mid.gain.value</code>. By tweaking these parameters, control over the audio's tone quality,
+            volume, and
+            timbre is achieved, resulting in a richer and more dynamic musical experience.
         </p>
+        <p>Finally, to achieve harmonious chords, different melodies are played simultaneously in the left and right
+            channels. This creates a rich, three-dimensional ambient sound in the Three.js scene. This approach allows
+            for
+            the primary melody to vary as individuals move within the environment, while the secondary melody remains
+            fixed, enhancing the overall immersive sound experience. Adding a second music sequence, lead2, and calling
+            the <code>makeSequence()</code> function twice within the <code>audiosetup()</code> function, using the lead
+            and lead2 sequences
+            respectively, enables the simultaneous playback of two different music sequences within the scene. </p>
+        <p>These are the two melodies that were created:</p>
+        <p style="font-style: italic;">Melody01</p>
+        <div class="code-block">
+            <pre><code>
+            let lead = [
+                "C4  q",
+                "E4  q",
+                "G4  q",
+                "C5  qd",
+                "A3  q",
+                "C4  q",
+                "E4  q",
+                "A4  q",
+                "F3  q",
+                "A3  q",
+                "C4  q",
+                "F4  q",
+                "G3  q",
+                "B3  q",
+                "D4  q",
+                "G4  qd",
+            ];
+        </code></pre>
+        </div>
+        <p style="font-style: italic;">Melody02</p>
+        <div class="code-block">
+            <pre><code>
+            let lead = [
+                "C4  e",
+                "E4  e",
+                "G4  e",
+                "B4  e",
+                "C5  e",
+                "A4  e",
+                "F4  e",
+                
+                "D4  e",
+                "C4  e",
+                "B3  e",
+                "G3  e",
+                "E3  e",
+                "C3  q",
+                "-   e",
+                
+                
+                "Bb3 s",
+                "A3  s",
+                "Bb3 e",
+                "G3  e",
+                "A3  e",
+                "G3  e",
+                "F3  e",
+                "G3  ee",
+                
+                "G3  e",
+                "A3  e",
+                "Bb3 e",
+                "A3  e",
+                "G3  e",
+                "A3  e",
+                "F3  q",
+                
+                "B4  s",
+                "A4  s",
+                "G4  e",
+                "A4  e",
+                "B4  e",
+                "C5  e",
+                "D5  q",
+            
+            
+                "E4  s",
+                "F4  s",
+                "G4  e",
+                "F4  e",
+                "E4  e",
+                "D4  e",
+                "C4  q",
+                
+                "E4  e",
+                "F4  e",
+                "G4  e",
+                "A4  e",
+                "B4  e",
+                "C5  e",
+                "D5  e",
+                "E5  q",
+                "C5  h",  
+                "G4  e",  
+                "E4  e",
+                "C4  hh",
+            ];
+        </code></pre>
+        </div>
+        <p>In the <code>makeSequence()</code> function, two sphere mesh objects are created and positioned at different
+            locations.
+            Each sphere mesh is attached to a PositionalAudio object, which plays the corresponding music sequence. This
+            establishes an association between the music sequences and the visual objects in the scene, allowing the
+            music to be spatially played within the scene.</p>
+        <img src="./imgs/sound_speakers.png" width="960" />
+        <p style="font-style: italic;">Figure 2. The two sphere mesh objects placed in the scene that play the two music
+            sequences.</p>
 
-        <h3>Player Avatar Design, Interaction, and Navigation</h3>
+        <h3 id="database">Databasing and User Persistence</h3>
         <p></p>
 
-        <h3>Databasing and User Persistence</h3>
+        <h3 id="challenge">Challenges and Solutions</h3>
         <p></p>
 
-        <h3>Challenges and Solutions</h3>
+        <h2 id="results">Results</h2>
+        <p>Discussion of the results, including:
+            relevant imagery (photos and screen captures)
+            include video (1-2 minutes), including some sections with narration
+            statistical information as well as
+            observations regarding use
+            an outline of future work to be done</p>
+
+        <!-- Temporarily putting this here. Feel free to move it to a better place. -->
+        <h3>Presentation Slides</h3>
+        <iframe
+            src="https://docs.google.com/presentation/d/e/2PACX-1vSFeESJbMfots6Phk96RFi-QOFrYjgKwV8oxxExDIykn-5Y0sGIZEGRjqtnt97ynQ/embed?start=false&loop=false&delayms=3000"
+            frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true"
+            webkitallowfullscreen="true"></iframe>
+
+        <h2 id="future">Future Work</h2>
         <p></p>
 
-        <h2>Results</h2>
-        <p></p>
+        <h2 id="references">References</h2>
+        <p>Cennis, Kevin. "Three.js WebXR Demo." GitHub Gist. May 23, 2024. Accessed May 29, 2024.
+            https://gist.github.com/kevincennis/0a5bcd12625a02e48970.</p>
+        <p>Cennis, Kevin. "TinyMusic." GitHub Repository. Accessed May 29, 2024.
+            https://github.com/kevincennis/TinyMusic.</p>
 
-        <h2>Future Work</h2>
-        <p></p>
-
-        <h2>References</h2>
     </div>
 </body>
 

@@ -5,7 +5,7 @@
 }
 
 #main {
-    margin: 4% 6%;
+    margin: 4% 10%;
 }
 
 p {
@@ -15,8 +15,31 @@ p {
 
 a {
     color: #e31837;
+    text-decoration: none;
 }
 
+a:hover {
+    text-decoration: underline;
+}
+
+/* Code blocks */
+.code-block {
+    background: #eee;
+    border-radius: 8px;
+    line-height: 1em;
+}
+
+code {
+    color: #e31837;
+    font-family: Courier, monospace;
+    padding:2px 4px;
+}
+
+.code-block code{
+    font-size:14px;
+}
+
+/* Navigation bar. These are the links at the top */
 #nav {
     display: flex;
     flex-direction: row;
@@ -25,9 +48,7 @@ a {
 }
 
 #nav > .logo {
-    color: red;
     font-size: 24px;
-    text-decoration: none;
     line-height: 0;
     flex: 85%;
 }
@@ -43,11 +64,6 @@ a {
     width: 4.5em;
     margin: 2px;
     text-align: center;
-    text-decoration: none;
-}
-
-.list-item:hover {
-    text-decoration: underline;
 }
 
 /* If we want a header image with the project title overlayed on top instead of a slideshow of images */
@@ -70,7 +86,6 @@ a {
 } */
 
 /* SLIDESHOW */
-/* Slideshow container */
 .slideshow-container {
     width: 100%;
     position: relative;
@@ -106,7 +121,6 @@ a {
     border-radius: 3px 0 0 3px;
 }
 
-/* On hover, add a black background color with a little bit see-through */
 .prev:hover, .next:hover {
     background: rgba(0, 0, 0, 0.8);
 }
