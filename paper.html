@@ -225,18 +225,17 @@
             the 'gazetime' variable, which represents the duration of the user's gaze. As the gaze time increases, the
             color of the cube gradually changes from dark to light. In this way, we created a dynamic and interactive 3D
             environment that allows the user to change the appearance and position of elements in the scene by adjusting
-            the camera movement, thus enabling an easy interactive experience.
-        </p>
-        <p>In the end, this was removed due to time constraints and in case the user wanted to stand in one spot and
+            the camera movement, thus enabling an easy interactive experience.</p>
+        <p>In the end, this was removed due to time constraints and in the case the user wanted to stay in one spot and
             take their time observing the agents without disrupting them.</p>
-        <p>Instead, we implemented multiple control systems to accommodate different devices and user preferences. For PC users,
-            we integrated PointerLockControls, allowing for first point of view mouse-based navigation. The
+        <p>Instead, we implemented multiple control systems to accommodate different devices and user preferences. For
+            PC users, we integrated PointerLockControls, allowing for first point of view mouse-based navigation. The
             PointerLockControls have a similar rotation system as a virtual reality system, which brought less confusion
             when users viewed <i>Lumen</i> from different systems. For the avatar movement, we used keyboard inputs (W,
-            A, S, D for forward, left, backward, and right movements, respectively). For mobile users, we implemented
-            joystick controls using the nippleJS add-on from Three.js. This setup includes two static joysticks where
-            the right joystick controlled the camera perspective and the left joystick controlled the avatar movement.
-        </p>
+            A, S, D for forward, left, backward, and right movements, respectively, Shift to run, Option+Alt to crouch).
+            For mobile users, we implemented joystick controls using the nippleJS add-on from Three.js. This setup
+            includes two static joysticks where the right joystick controlled the camera perspective and the left
+            joystick controlled the avatar movement.</p>
         <p>To cater to the growing popularity of virtual reality, we imported WebXR API to generate the VR settings.
             This integration involved creating an independent camera setup for VR and enabling users to experience the
             virtual environment in a more immersive manner. The VRButton add-ons allowed users to toggle VR mode,
@@ -550,7 +549,8 @@
             <li>Cennis, Kevin. "TinyMusic." GitHub Repository. Accessed May 29, 2024.
                 https://github.com/kevincennis/TinyMusic.</li>
             <li>Jacob, Robert J., and Keith S. Karn. "Eye Tracking in Human-Computer Interaction and Usability Research:
-                Ready to Deliver the Promises." In The Mind's Eye: Cognitive and Applied Aspects of Eye Movement Research,
+                Ready to Deliver the Promises." In The Mind's Eye: Cognitive and Applied Aspects of Eye Movement
+                Research,
                 edited by Jukka Hyona, Ronny Radach, and Heiner Deubel, 573-605. North-Holland: 2003.</li>
             <li>Mrdoob. “Three.Js/Examples/Webgl_buffergeometry_rawshader.Html at Master · Mrdoob/Three.Js.” GitHub,
                 github.com/mrdoob/three.js/blob/master/examples/webgl_buffergeometry_rawshader.html#L23. Accessed 26 May
@@ -559,7 +559,8 @@
                 github.com/mrdoob/three.js/blob/master/examples/webgl_decals.html. Accessed 15 May 2024. </li>
             <li>Roe, Bobby. “Three.Js – Buffer Geometry Art.” YouTube, YouTube, 14 Mar. 2022,
                 www.youtube.com/watch?v=Q7soTiQ1IBk.</li>
-            <li>Simon, Bruno. “Raging Sea.” Three.Js Journey, threejs-journey.com/lessons/raging-sea. Accessed 26 May 2024.
+            <li>Simon, Bruno. “Raging Sea.” Three.Js Journey, threejs-journey.com/lessons/raging-sea. Accessed 26 May
+                2024.
             </li>
             <li>“Three.Js.” Three.Js Docs, threejs.org/docs/#api/en/core/BufferGeometry. Accessed 15 May 2024.</li>
         </ul>
