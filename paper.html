@@ -62,11 +62,10 @@
         </div>
 
         <h2 id="overview">Overview</h2>
-        <p>Lumen envisions a dark, underwater world illuminated by ambient lighting sufficient to observe nearby
+        <p><i>Lumen</i> envisions a dark, underwater world illuminated by ambient lighting sufficient to observe nearby
             surroundings. In this world, various types and sizes of sea life agents exist. The user takes on the form of
             a “spirit” carrying a point light that can be used to interact with the world. They can interact with the
-            world by throwing balls of light using their controller or pointer. When agents are observed for more than
-            two seconds, they move towards the user's current gaze position.</p>
+            world by throwing balls of light using their controller or pointer.</p>
         <p>Users can explore this environment through the use of VR headsets, desktop devices, or mobile devices,
             allowing multiple users to access it simultaneously. In VR, users can walk, crouch, jump, and look around.
             On desktop devices, the user can use WASD to move and their cursor to pan the camera. Finally, on mobile
@@ -76,35 +75,55 @@
         <h2 id="related">Related Works</h2>
         <h3><a href="https://www.teamlab.art/w/graffiti_nature_reborn/">Graffiti Nature: Lost, Immersed and Reborn</a>
         </h3>
-        <p><cite>Graffiti Nature: Lost, Immersed and Reborn</cite>is an installation where participants can colour in a
+        <p><i>Graffiti Nature: Lost, Immersed and Reborn</i>is an installation where participants can colour in a
             creature on a piece of paper and watch it come to life within the virtual environment, interacting with
             other digital organisms in a shared space. These creatures multiply if they eat other living things, but
             disappear if they do not eat enough or are eaten by other creatures.
         </p>
-        <p>In Lumen, the agents and environment respond to the light that the user throws. The agents are curious about
-            the light the user holds, but as soon as it is thrown into the world, they grow frantic and aggressive,
+        <p>In <i>Lumen</i>, the agents and environment respond to the light that the user throws. The agents are curious
+            about the light the user holds, but as soon as it is thrown into the world, they grow frantic and
+            aggressive,
             fighting over the light as a scarce resource and sometimes choosing to kill another agent over it.
         </p>
 
         <h3><a href="https://youtu.be/qADXXnPy4hA">Unfinished Swan</a></h3>
-        <p><cite>Unfinished Swan</cite> is a game that places players in a stark-white world. Players reveal the world
+        <p><i>Unfinished Swan</i> is a game that places players in a stark-white world. Players reveal the world
             around them by splattering black paint, gradually uncovering the environment as they explore. The game
-            encourages players to interact with an initially invisible world. In Lumen, users use point lights to
-            illuminate and interact with the dark underwater environment. Both Unfinished Swan and Lumen rely on the
-            user's actions to transform and reveal their respective worlds, enhancing the sense of exploration and
-            engagement.
-        </p>
+            encourages players to interact with an initially invisible world. In <i>Lumen</i>, users use point lights to
+            illuminate and interact with the dark underwater environment. Both <i>Unfinished Swan</i> and <i>Lumen</i>
+            rely on the user's actions to transform and reveal their respective worlds, enhancing the sense of
+            exploration and engagement.</p>
 
         <h3><a href="https://youtu.be/4YmBZauVYyE">Devil's Tuning Fork</a></h3>
-        <p>Similar to <cite>Unfinished Swan</cite>, <cite>Devil's Tuning Fork</cite> is a game that invites players to
+        <p>Similar to <i>Unfinished Swan</i>, <i>Devil's Tuning Fork</i> is a game that invites players to
             interact with the invisible world around them. It uses echolocation as its primary navigational mechanic.
             Players emit sound waves or “echos” to visualise their surroundings, mapping out the environment in response
             to auditory feedback.</p>
 
         <h2 id="development">Development</h2>
-        <!-- Please talk about what you/your group worked on under your corresopnding h3 heading! -->
 
         <h3 id="agent">Agent Design and Interaction</h3>
+        <!-- Design -->
+        <h4>Agent Design</h4>
+        <p>The agent design process was changed over time because of unfortunate events and bandwidth issues.</p>
+        <p>Originally, the agents were supposed to be created by the user to give the player an interesting interactive
+            experience and actual influence on the ecosystem in the virtual world. The idea behind it was to create
+            points on a plane to give affordances to generate a user-shaped agent with a seed of improvised generative
+            elements. The whole implementation aimed to include the agent in the world's ecosystem introducing the
+            concept of the diversity of species.</p>
+        <p style="text-align:center"><img src="./imgs/agent_1.jpg" />
+            <br /><i>Figure 1.</i>
+        </p>
+        <p>Due to unexpected events, the user generation of the agents was exchanged for static generative agents with
+            attached shader material for color change and animation. The buffer geometry was built from random points as
+            well as material attached without indices specified. That resulted in the flowing bunch of triangles which
+            resembled some generative agent concept.</p>
+        <p style="text-align:center"><img src="./imgs/agent_2.jpg" />
+            <br /><i>Figure 2.</i>
+        </p>
+        <p>Finally, because of the resources (bandwidth) as well as problems with triangle visuality in the VR, it was
+            decided that agents would remain as solid geometries.</p>
+        <h4>Agent Interaction</h4>
         <!-- Interaction -->
         <p>The goals of agent interaction changed throughout the course of the project. Originally the goal was to make
             the agents defined to a set of species that had target species and would move around. When the project was
@@ -129,14 +148,100 @@
             so from early on in agent behaviour design we accounted for the idea of certain points the agents would be
             interested in. The agents will, when close to a point that is designated as a "light source", will attempt
             to stay close to it and will congregate to hunt each other in the general area of the light.</p>
-        <p>At this point the agents still existed as placeholder triangles but the behaviour of them hunting,
+        <p>At this point, the agents still existed as placeholder triangles, but the behaviour of them hunting,
             interacting with light, and wandering was working and could be integrated with the rest of the project.</p>
 
-        <h3 id="avatar">Player Avatar Design, Interaction, and Navigation</h3>
-        <p></p>
-
-        <img src="./imgs/avatar_concepts.png" width="960" />
-        <p><i>Figure 1. Concept sketches of the player avatar.</i></p>
+        <h3 id="avatar">Player Avatar Design</h3>
+        <p>The avatar development ran through with three phases: concept development, avatar design and navigation
+            processing, final avatar testing and completion. The concept of avatar followed with the project concept of
+            "lighting up the ocean." Through the phase of avatar design, there were three obstacles: users must be able
+            to navigate the avatar in multiple platforms including Virtual Reality (VR), mobile and laptops; flexibility
+            of managing the avatar through user's preference; and light effect with the environment.</p>
+        <!-- Design -->
+        <h4>Avatar Design </h4>
+        <p>The development of the avatar for Lumen went through three iterations, each of them representing a
+            different proof of concept. The final version was selected for its general applicability and alignment with
+            the project.</p>
+        <p style="text-align:center"><img src="./imgs/avatar_concepts.png" />
+            <br /><i>Figure 3. Concept sketches of the player avatar.</i>
+        </p>
+        <p>The user takes on the form of a small "spirit" with a reflective, semi-transparent body, holding a magic
+            light ball that attracts agents. The avatar's primary function is to control the light ball to interact
+            with the agents present in the environment. The user can set the colour and head shape of their spirit. Its
+            default head shape is a slightly luminous sphere with two black eyes. The hands are also spherical, matching
+            the head's material and transparency, creating a cohesive spirit-like appearance. The semi-transparency of
+            the avatar also enhances the game's atmosphere, giving players a unique and engaging character to control.
+        </p>
+        <p>The aesthetic appeal of this visual effect comes from its vibrant colors and contrast, creating depth and
+            dynamic visual interest. The 3D perspective and symmetrical arrangement add spatial depth and balance. The
+            overall composition is harmonious and eye-catching. The visual appearance is built by Three.js. Compared to
+            glTF models, Three.js models had more flexibility on color, shape and materials for user design. </p>
+        <p style="text-align:center"><img src="./imgs/avatar_2.png" />
+            <br /><i>Figure 4. The player avatar.</i>
+        </p>
+        <p>The light was built by creating light with a sphere object, adapted from the <a
+                href="https://threejs.org/examples/?q=shadowmap#webgl_shadowmap">Three.js "shadowmap" example</a>.
+            Compared to first version of using a bloom effect where the visual effect is limited by the
+            environment, creating a lighting sphere allowed the light to shine other objects with materials. This
+            material choice, combined with lighting using HemisphereLight (for the pointer) and PointLight (as the light
+            ball), creates a visual effect that enhanced avatar's presence. The lighting setup ensures that the avatar
+            remains visually consistent across different environments and lighting conditions within the virtual world.
+        </p>
+        <!-- GUI -->
+        <p>Graphical user interface (GUI) controls were used to incorporate customizable avatars in order to enhance
+            user engagement and generativity. This feature allowed users to modify avatars' color and shape, providing a
+            personalized and immersive experience. The GUI controls imported add-on features from Three.js. A color
+            picker control and shape control along with a drop-down menu explaining each shape was written to allow
+            users to select their preferred appearance. The <code>onChange</code> event callback allows a real-time
+            update of the spirit head and hands based on the selected shape. Customization not only fosters a deeper
+            connection between the user and their avatar but also encourages prolonged interaction with the virtual
+            environment.</p>
+        <p style="text-align:center"><img src="./imgs/avatar_gui.png" />
+            <br /><i>Figure 5. GUI control panel for avatar appearance.</i>
+        </p>
+        <p>The color GUI controls that was integrated with the server had achieved real-time updates and interactions. A
+            WebSocket is used
+            to send and receive JSON messages from user to the server. When a user adjusts the color settings in the GUI
+            window, their actions are captured as events, formatted into JSON messages, and sent to the server via the
+            WebSocket connection. However, changing the shape of the avatar using the GUI controls faced a significant
+            challenge in connecting with the server due to its complexity of managing shape transformations across
+            multiple clients. Shape changes involve altering 3D geometry with position and size changes, which required
+            more extensive data transmission and processing. Due to the time limit of this project, the shape change can
+            only be seen on the user's own screen than shared across all platforms.</p>
+        <!-- Navigation -->
+        <h4>Navigation</h4>
+        <p>Initially, we looked at implementing a "cube-based gaze interaction" so that whenever the user's gaze is
+            fixed for more than two seconds, the avatar slowly moves to the gazed location. This approach can enhance
+            the connection between artistic works and humans. Regardless of what type of creature the avatar ended up
+            being, it establishes a connection with human behavior. Research in human-computer interaction has shown
+            that gaze-based interfaces reduce physical strain and cognitive load compared to traditional input methods.
+            This makes gaze interaction a more natural and effortless way for users to engage with digital environments.
+        </p>
+        <p>Dynamic gaze effect can be achieved by creating a three-dimensional environment. Within this environment,
+            users can manipulate elements within the scene by adjusting the camera view.The 'animate' function is called
+            at each frame update to handle time changes, camera movement distance, and cube color updates.To achieve
+            'delayed synchronization', we use a graphical sphere to synchronize with the camera movement, ensuring that
+            when the user focuses on a specific area for more than 2 seconds, the sphere gradually follows the user's
+            gaze. In the case of the cube element, achieve a gradient effect of the cube color by dynamically updating
+            the 'gazetime' variable, which represents the duration of the user's gaze. As the gaze time increases, the
+            color of the cube gradually changes from dark to light. In this way, we created a dynamic and interactive 3D
+            environment that allows the user to change the appearance and position of elements in the scene by adjusting
+            the camera movement, thus enabling an easy interactive experience.
+        </p>
+        <p>In the end, this was removed due to time constraints and in case the user wanted to stand in one spot and
+            take their time observing the agents without disrupting them.</p>
+        <p>We implemented multiple control systems to accommodate different devices and user preferences. For PC users,
+            we integrated PointerLockControls, allowing for first point of view mouse-based navigation. The
+            PointerLockControls have a similar rotation system as a virtual reality system, which brought less confusion
+            when users viewed <i>Lumen</i> from different systems. For the avatar movement, we used keyboard inputs (W,
+            A, S, D for forward, left, backward, and right movements, respectively). For mobile users, we implemented
+            joystick controls using the nippleJS add-on from Three.js. This setup includes two static joysticks where
+            the right joystick controlled the camera perspective and the left joystick controlled the avatar movement.
+        </p>
+        <p>To cater to the growing popularity of virtual reality, we imported WebXR API to generate the VR settings.
+            This integration involved creating an independent camera setup for VR and enabling users to experience the
+            virtual environment in a more immersive manner. The VRButton add-ons allowed users to toggle VR mode,
+            facilitating intuitive interaction with the virtual world. </p>
 
         <h3 id="sound">Sound Synthesis</h3>
         <!-- Ambient Sound -->
@@ -192,40 +297,32 @@
         </div>
         <p>The JavaScript code covers the following key parts:</p>
         <ul>
-            <li><span style="font-weight:bold;">Three.js and WebXR setup:</span> First, it imports the necessary
-                Three.js components and WebXR related
+            <li><b>Three.js and WebXR setup:</b> First, it imports the necessary Three.js components and WebXR related
                 components. Then it creates the scene, renderer, camera, and enables WebXR functionality.</li>
-            <li><span style="font-weight:bold;">Lighting and mesh auxiliary lines:</span> Added hemispherical and
-                directional lighting to the scene, as well as
-                a mesh auxiliary line.</li>
-            <li><span style="font-weight:bold;">Window resize handling:</span> Listened to a window size change event to
-                update the camera's aspect ratio and
-                handle renderer sizing in XR mode.</li>
-            <li><span style="font-weight:bold;">Audio settings:</span> An audio listener was created and added to the
-                camera. Also created a positional audio
-                object and added it to a cube mesh object. In addition, the audio context is launched by clicking on the
-                page. </li>
-            <li><span style="font-weight:bold;">Controller setup:</span> An OrbitControls controller was created to
-                allow interaction in the scene.</li>
-            <li><span style="font-weight:bold;">Animation loop:</span> An animation loop is set up to update the scene
-                at each frame and render it.</li>
-            <li><span style="font-weight:bold;">Music sequence playback settings:</span> In the
-                <code>audiosetup()</code>
-                function, a music sequence is defined and some
-                audio parameters are set and initialized when the page is loaded.</li>
+            <li><b>Lighting and mesh auxiliary lines:</b> Added hemispherical and directional lighting to the scene, as
+                well as a mesh auxiliary line.</li>
+            <li><b>Window resize handling:</b> Listened to a window size change event to update the camera's aspect
+                ratio and handle renderer sizing in XR mode.</li>
+            <li><b>Audio settings:</b> An audio listener was created and added to the camera. Also created a positional
+                audio object and added it to a cube mesh object. In addition, the audio context is launched by clicking
+                on the page. </li>
+            <li><b>Controller setup:</b> An OrbitControls controller was created to allow interaction in the scene.</li>
+            <li><b>Animation loop:</b> An animation loop is set up to update the scene at each frame and render it.</li>
+            <li><b>Music sequence playback settings:</b> In the <code>audiosetup()</code> function, a music sequence is
+                defined and some audio parameters are set and initialized when the page is loaded.</li>
         </ul>
         <p>Based on this, two melodies were created, exploring how melodies can be expressed in code to align with the
             project's theme. The variable "lead" defines a simple sequence of notes. Each string represents a note,
             including its pitch and duration. We experimented with different note combinations to create a suitable
-            melody for the ambient music. <span style="font-style: italic;">Melody01</span> consists of quarter
-            notes, while <span style="font-style: italic;">Melody02</span> is primarily comprised of
+            melody for the ambient music. <i>Melody01</i> consists of quarter
+            notes, while <i>Melody02</i> is primarily comprised of
             eighth notes but also includes some sixteenth notes, quarter notes, half notes, and dotted eighth notes,
             resulting in a rhythmically diverse melody.</p>
         <ul>
-            <li><span style="font-weight:bold;">Note names:</span> Represent the alphabetical letters for pitch (A to
+            <li><b>Note names:</b> Represent the alphabetical letters for pitch (A to
                 G), followed by a number indicating the
                 octave of the note. For example, “C4” represents the note C in the fourth octave.</li>
-            <li><span style="font-weight:bold;">Duration:</span> Represents the duration of a note, with letters
+            <li><b>Duration:</b> Represents the duration of a note, with letters
                 indicating different note lengths. Common
                 symbols include:</li>
             <ul>
@@ -251,14 +348,14 @@
         </p>
         <p>Finally, to achieve harmonious chords, different melodies are played simultaneously in the left and right
             channels. This creates a rich, three-dimensional ambient sound in the Three.js scene. This approach allows
-            for
-            the primary melody to vary as individuals move within the environment, while the secondary melody remains
+            for the primary melody to vary as individuals move within the environment, while the secondary melody
+            remains
             fixed, enhancing the overall immersive sound experience. Adding a second music sequence, lead2, and calling
             the <code>makeSequence()</code> function twice within the <code>audiosetup()</code> function, using the lead
-            and lead2 sequences
-            respectively, enables the simultaneous playback of two different music sequences within the scene. </p>
-        <p>These are the two melodies that were created:</p>
-        <p style="font-style: italic;">Melody01</p>
+            and lead2 sequences respectively, enables the simultaneous playback of two different music sequences within
+            the scene. </p>
+        <p>The following two melodies were created:</p>
+        <p><i>Melody01</i></p>
         <div class="code-block">
             <pre><code>
             let lead = [
@@ -356,13 +453,61 @@
             Each sphere mesh is attached to a PositionalAudio object, which plays the corresponding music sequence. This
             establishes an association between the music sequences and the visual objects in the scene, allowing the
             music to be spatially played within the scene.</p>
-        <img src="./imgs/sound_speakers.png" width="960" />
-        <p style="font-style: italic;">Figure 2. The two sphere mesh objects placed in the scene that play the two music
-            sequences.</p>
+        <p style="text-align:center"><img src="./imgs/sound_speakers.png" />
+            <br /><i>Figure 6. The two sphere mesh objects placed in the scene that play the two music
+                sequences.</i>
+        </p>
 
         <h3 id="database">Databasing and User Persistence</h3>
-        <p></p>
-
+        <p>The development of databasing and user persistence in <i>Lumen</i> was driven by the need to ensure data
+            reliability and seamless multiplayer interaction, especially in the event of server crashes. The primary
+            objective
+            was to store and share user data effectively, allowing all connected users to see each other within the
+            shared space in real-time.</p>
+        <p>Initially, we considered using MongoDB for data storage and sharing. However, given our expectation of a
+            relatively small user base, we transitioned to using JSON files for simplicity and efficiency. This change
+            streamlined the development process and reduced dependency on an external database service.</p>
+        <p>The communication between the server and client is handled using WebSockets. User data, including username,
+            password, avatar location, avatar color, and the state of the agents in the environment is stored and shared
+            among all connected users. Messages are sent every 50 milliseconds, ensuring that the state changes are
+            promptly communicated and reflected across all connected clients. </p>
+        <p>The messages used the following structure:</p>
+        <div class="code-block">
+            <pre><code>
+            {
+                type: "type", // indicates the message type
+                data: {
+                  // the data being sent / payload.
+                }
+            }
+        </code></pre>
+        </div>
+        <p>For example, the message for the server to send the state of all agents to all clients on every frame:</p>
+        <div class="code-block">
+            <pre><code>
+            { 
+                type: “creatures”,
+                creatures: [
+                    {
+                        pos: [0, 0, 0],
+                        dir: [0, 0, 0, 1], // (quaternion orientation)
+                        color: 927349, // hex value
+                    }, 
+                    // etc. for all creatures
+                ]
+            }
+        </code></pre>
+        </div>
+        <p>There are two JSON files being used to store the user and agent data:</p>
+        <ul>
+            <li><b>user_data.json:</b> The first time the user logs in and connects to <i>Lumen</i>, they are
+                automatically assigned a unique user ID (UUID) which is then stored along with the position and colour
+                of their avatar. When the server receives a username and password at log in, it retrieves the
+                corresponding avatar details and returns them to the client. </li>
+            <li><b>shared_state.json:</b> The state of all avatars and agents. This ensures
+                that all connected users have a consistent view of the multiplayer space. This file tracks the positions
+                and states of avatars and agents, facilitating real-time updates and interactions. </li>
+        </ul>
         <h3 id="challenge">Challenges and Solutions</h3>
         <p></p>
 
@@ -374,22 +519,47 @@
             observations regarding use
             an outline of future work to be done</p>
 
-        <!-- Temporarily putting this here. Feel free to move it to a better place. -->
+        <!-- Presentation Slides -->
         <h3>Presentation Slides</h3>
         <iframe
             src="https://docs.google.com/presentation/d/e/2PACX-1vSFeESJbMfots6Phk96RFi-QOFrYjgKwV8oxxExDIykn-5Y0sGIZEGRjqtnt97ynQ/embed?start=false&loop=false&delayms=3000"
-            frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true"
+            frameborder="0" width="80%" height="569" allowfullscreen="true" mozallowfullscreen="true"
             webkitallowfullscreen="true"></iframe>
 
         <h2 id="future">Future Work</h2>
-        <p></p>
+        <p>Due to time limitations, with only two weeks allocated for the development of Lumen, there are many areas
+            that could be improved or expanded upon. Future work should focus on improving controls and interactions.
+        </p>
+        <p>The current implementation of VR controls in Lumen is limited, allowing users only to look around without
+            full navigational capabilities. Addressing this issue is a priority, as enabling complete VR control
+            (walking, crouching, jumping, and throwing the ball of light), will improve the VR experience
+            of <i>Lumen</i>. Additionally, joystick functionality on mobile devices needs refinement; while they work on
+            tablets, they ended up being unusable on phones. These joystick controls need to either be fixed or replaced
+            with another method. Perhaps adding in buttons to control the avatar and camera would work better.</p>
+        <p>Introducing a greater variety of sea life agents with more complex behaviors will make the environment more
+            engaging and lifelike. Currently, agents will approach light sources, but adding behaviors such as
+            multiplying in the absence of light (rather than periodically) will create a more dynamic and
+            self-sustaining ecosystem. Future development should focus on creating unique interactions between the
+            agents and the user as well as between the agents themselves.</p>
 
         <h2 id="references">References</h2>
         <p>Cennis, Kevin. "Three.js WebXR Demo." GitHub Gist. May 23, 2024. Accessed May 29, 2024.
             https://gist.github.com/kevincennis/0a5bcd12625a02e48970.</p>
         <p>Cennis, Kevin. "TinyMusic." GitHub Repository. Accessed May 29, 2024.
             https://github.com/kevincennis/TinyMusic.</p>
-
+        <p>Jacob, Robert J., and Keith S. Karn. "Eye Tracking in Human-Computer Interaction and Usability Research:
+            Ready to Deliver the Promises." In The Mind's Eye: Cognitive and Applied Aspects of Eye Movement Research,
+            edited by Jukka Hyona, Ronny Radach, and Heiner Deubel, 573-605. North-Holland: 2003.</p>
+        <p>Mrdoob. “Three.Js/Examples/Webgl_buffergeometry_rawshader.Html at Master · Mrdoob/Three.Js.” GitHub,
+            github.com/mrdoob/three.js/blob/master/examples/webgl_buffergeometry_rawshader.html#L23. Accessed 26 May
+            2024. </p>
+        <p>Mrdoob. “Three.Js/Examples/Webgl_decals.Html at Master · Mrdoob/Three.Js.” GitHub,
+            github.com/mrdoob/three.js/blob/master/examples/webgl_decals.html. Accessed 15 May 2024. </p>
+        <p>Roe, Bobby. “Three.Js – Buffer Geometry Art.” YouTube, YouTube, 14 Mar. 2022,
+            www.youtube.com/watch?v=Q7soTiQ1IBk.</p>
+        <p>Simon, Bruno. “Raging Sea.” Three.Js Journey, threejs-journey.com/lessons/raging-sea. Accessed 26 May 2024.
+        </p>
+        <p>“Three.Js.” Three.Js Docs, threejs.org/docs/#api/en/core/BufferGeometry. Accessed 15 May 2024.</p>
     </div>
 </body>
 

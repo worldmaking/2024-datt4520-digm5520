@@ -24,6 +24,7 @@ a:hover {
 
 img {
     border-radius: 1rem;
+    max-width:80%;
 }
 
 /* Code blocks */
@@ -31,6 +32,7 @@ img {
     background: #eee;
     line-height: 1em;
     border-radius: 1rem;
+    margin:0 10%;
 }
 
 code {
